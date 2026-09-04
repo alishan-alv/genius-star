@@ -225,8 +225,8 @@
     auth.signUp = async ({ email, password, nick }) => {
       const { data, error } = await client.auth.signUp({ email, password, options: { data: { nick: cleanNick(nick) } } });
       if (error) throw error;
-      const identities = data && data.user && data.user.identities;
-      if (identities && identities.length === 0) throw new Error('An account with this email already exists. Try signing in.');
+      // Supabase deliberately answers an already-registered email like a fresh sign-up (no session,
+      // empty identities) so that the form cannot be used to enumerate accounts; keep it that way.
       return { confirmationRequired: !(data && data.session) };
     };
     auth.signIn = async ({ email, password }) => {

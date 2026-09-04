@@ -145,9 +145,11 @@
   function recordFinish(key, data, quiet) {
     const n = Number(data.n);
     if (!Number.isInteger(n) || n < 1) return;
+    if (!L.round || n !== L.round.n) return;                          // only the round being played
+    const m = L.members.find(x => x.key === key);
+    if (!m && key !== L.me.key) return;                               // only players present in the lobby
     const arr = L.results[n] = L.results[n] || [];
     if (arr.some(r => r.key === key)) return;
-    const m = L.members.find(x => x.key === key);
     const row = {
       key, nick: B.cleanNick(data.nick || (m && m.nick)) || 'Player',
       time_ms: Math.max(0, Math.min(86399999, Number(data.time_ms) || 0)),

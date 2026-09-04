@@ -149,9 +149,8 @@
         const res = await B.auth.signUp({ email, password, nick: n });
         setGuestNick(n);
         if (res.confirmationRequired) {
-          info.textContent = 'Almost there — check your inbox for a confirmation email, then sign in.';
           show('signin'); inEmail.value = email;
-          info.textContent = 'Check your inbox for a confirmation email, then sign in here.';
+          info.textContent = 'If this email is new, a confirmation link is on its way — open it, then sign in here. Already registered? Just sign in.';
         } else { UI.closeModal(); UI.toast('Account created — welcome, ' + n + '!'); }
       } catch (ex) { err.textContent = errorText(ex); }
       upSubmit.disabled = false;
