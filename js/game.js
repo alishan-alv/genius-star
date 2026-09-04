@@ -1,6 +1,7 @@
 /* game.js — user interface for The Genius Star (web edition).
  * Drag pieces from the tray onto the star, rotate with R / flip with F, race the clock,
  * and try to complete the puzzle with the Golden Star whole.
+ * Exposes GS.ui (shared widgets) and GS.game (events + lobby hooks) for account.js / lobby.js.
  */
 (function (root) {
   'use strict';
@@ -8,11 +9,10 @@
   const G = GS.geom, D = GS.dice, S = GS.solver;
   const PIECES = GS.PIECES, SHAPES = GS.SHAPES, PIECE_BY_ID = GS.PIECE_BY_ID;
   const SVG_NS = 'http://www.w3.org/2000/svg';
-  const TRAY_SCALE = 0.4;
   const SNAP_DIST = G.SIDE * 0.8;
   const KEY_GAME = 'geniusStar.game.v1';
-  const KEY_RECORDS = 'geniusStar.records.v1';
   const $ = s => document.querySelector(s);
+  const phoneQuery = root.matchMedia ? root.matchMedia('(max-width: 560px)') : { matches: false, addEventListener() {} };
 
   const state = {
     roll: null,          // seven numbers in dice order (null for custom puzzles)
@@ -25,18 +25,104 @@
     drag: null,
     elapsed: 0, startedAt: null, running: false,
     solved: false, golden: false, hints: 0, revealed: false, starPossible: null,
+    lobbyMode: false,    // inside a lobby: rounds are started by the host, no hints
+    lobbyRound: null,    // { code, round } while a lobby round is being played
   };
-  let records = { played: 0, solved: 0, golden: 0, bestTime: null, bestGolden: null };
   const els = {};
-  let uid = 0, timerHandle = null, busy = false, lastSave = 0;
+  const listeners = {};
+  let uid = 0, timerHandle = null, busy = false, lastSave = 0, recordsSeq = 0;
+
+  // ------------------------------------------------------------------ tiny event bus
+  function on(evt, cb) { (listeners[evt] = listeners[evt] || []).push(cb); }
+  function emit(evt, data) { (listeners[evt] || []).forEach(cb => { try { cb(data); } catch (e) { console.error(e); } }); }
+
+  // ------------------------------------------------------------------ shared UI helpers (GS.ui)
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+  function el(tag, attrs) {
+    const node = document.createElement(tag);
+    if (attrs) {
+      for (const k in attrs) {
+        const v = attrs[k];
+        if (v === null || v === undefined || v === false) continue;
+        if (k === 'text') node.textContent = v;
+        else if (k === 'class') node.className = v;
+        else if (k === 'html') node.innerHTML = v;            // trusted static markup only
+        else if (k.startsWith('on') && typeof v === 'function') node.addEventListener(k.slice(2), v);
+        else node.setAttribute(k, v === true ? '' : v);
+      }
+    }
+    for (let i = 2; i < arguments.length; i++) {
+      const c = arguments[i];
+      if (c === null || c === undefined || c === false) continue;
+      node.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+    }
+    return node;
+  }
+  function svgEl(tag, attrs, parent) {
+    const node = document.createElementNS(SVG_NS, tag);
+    for (const k in attrs || {}) node.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(node);
+    return node;
+  }
+  function fmtTime(ms) {
+    const t = Math.max(0, Number(ms) || 0);
+    const m = Math.floor(t / 60000), s = Math.floor((t % 60000) / 1000), d = Math.floor((t % 1000) / 100);
+    return m + ':' + String(s).padStart(2, '0') + '.' + d;
+  }
+  let toastTimer = null;
+  function toast(msg, ms) {
+    els.toast.textContent = msg;
+    els.toast.classList.remove('hidden');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => els.toast.classList.add('hidden'), ms || 2600);
+  }
+  // showModal({ title, html | node, buttons: [{ label, primary, onClick(box) }], locked })
+  // A button's onClick may return false (or a promise of false) to keep the modal open.
+  function showModal(opts) {
+    els.modal.innerHTML = '';
+    const back = el('div', { class: 'modal-backdrop' });
+    const box = el('div', { class: 'modal', role: 'dialog', 'aria-modal': 'true' });
+    box.appendChild(el('h2', { text: opts.title }));
+    const body = el('div', { class: 'modal-body' });
+    if (opts.node) body.appendChild(opts.node); else if (opts.html) body.innerHTML = opts.html;
+    box.appendChild(body);
+    const buttons = opts.buttons || [{ label: 'Close' }];
+    const row = el('div', { class: 'btn-row modal-buttons' });
+    const btnEls = buttons.map(b => {
+      const btn = el('button', { type: 'button', text: b.label, class: b.primary ? 'primary' : '' });
+      btn.addEventListener('click', async () => {
+        if (!b.onClick) { closeModal(); return; }
+        btnEls.forEach(x => { x.disabled = true; });
+        let keep = false;
+        try { keep = (await b.onClick(box)) === false; } catch (e) { console.error(e); keep = true; }
+        btnEls.forEach(x => { x.disabled = false; });
+        if (!keep) closeModal();
+      });
+      row.appendChild(btn);
+      return btn;
+    });
+    box.appendChild(row);
+    box.addEventListener('keydown', e => {
+      if (e.key !== 'Enter' || e.target.tagName !== 'INPUT' || e.target.closest('form')) return;
+      const idx = buttons.findIndex(b => b.primary);
+      if (idx >= 0) { e.preventDefault(); btnEls[idx].click(); }
+    });
+    back.appendChild(box);
+    back.addEventListener('click', e => { if (e.target === back && !opts.locked) closeModal(); });
+    els.modal.appendChild(back);
+    els.modal.classList.remove('hidden');
+    const first = box.querySelector('input, select, button.primary, button');
+    if (first) first.focus();
+    return box;
+  }
+  function closeModal() { els.modal.classList.add('hidden'); els.modal.innerHTML = ''; }
+  function modalOpen() { return !els.modal.classList.contains('hidden'); }
+
+  GS.ui = { esc, el, fmtTime, toast, showModal, closeModal, modalOpen };
 
   // ------------------------------------------------------------------ helpers
-  function svgEl(tag, attrs, parent) {
-    const el = document.createElementNS(SVG_NS, tag);
-    for (const k in attrs || {}) el.setAttribute(k, attrs[k]);
-    if (parent) parent.appendChild(el);
-    return el;
-  }
   function clientToSvg(svg, x, y) {
     const m = svg.getScreenCTM();
     if (!m) return [0, 0];
@@ -44,11 +130,7 @@
     return [p.x, p.y];
   }
   function boardScale() { const m = els.board.getScreenCTM(); return m ? m.a : 1; }
-  function fmtTime(ms) {
-    const t = Math.max(0, ms);
-    const m = Math.floor(t / 60000), s = Math.floor((t % 60000) / 1000), d = Math.floor((t % 1000) / 100);
-    return m + ':' + String(s).padStart(2, '0') + '.' + d;
-  }
+  function trayScale() { return phoneQuery.matches ? 0.33 : 0.4; }
   function translated(cellsRC, dr, dc) { return cellsRC.map(([r, c]) => [r + dr, c + dc]); }
   function absCells(id, p) { return translated(SHAPES[PIECE_BY_ID[id].shape].orients[p.orient].cells, p.r, p.c); }
   function occupancy(excludeId) {
@@ -60,18 +142,19 @@
     }
     return occ;
   }
-  function placedIds(excludeId) { return Object.keys(state.placed).filter(id => id !== excludeId); }
   function hasPuzzle() { return state.blocked.length === 7 && !state.editing; }
+  function piecesLeft() { return PIECES.length - Object.keys(state.placed).length; }
   function fixedList() {
     return Object.entries(state.placed).map(([id, p]) => ({ shape: PIECE_BY_ID[id].shape, cells: p.cells }));
   }
-
-  let toastTimer = null;
-  function toast(msg, ms) {
-    els.toast.textContent = msg;
-    els.toast.classList.remove('hidden');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => els.toast.classList.add('hidden'), ms || 2400);
+  function setDisabled(sel, flag) { const b = $(sel); if (b) b.disabled = !!flag; }
+  function updateButtons() {
+    const lobby = state.lobbyMode, has = hasPuzzle();
+    ['#btn-roll', '#btn-enter', '#btn-daily', '#btn-custom'].forEach(s => setDisabled(s, busy || lobby || state.editing));
+    setDisabled('#btn-hint', lobby || !has || state.solved || busy);
+    setDisabled('#btn-solution', lobby || !has || state.solved || busy);
+    setDisabled('#btn-golden', lobby || !has);
+    setDisabled('#btn-clear', !has || state.solved);
   }
 
   // ------------------------------------------------------------------ board
@@ -103,7 +186,8 @@
     els.gBlockers.innerHTML = '';
     state.blocked.forEach((i, k) => {
       const cell = G.cells[i];
-      const g = svgEl('g', { class: 'blocker', style: animate ? 'animation-delay:' + (k * 70) + 'ms' : 'animation:none' }, els.gBlockers);
+      const g = svgEl('g', { class: 'blocker' }, els.gBlockers);
+      if (animate) g.style.animationDelay = (k * 70) + 'ms'; else g.style.animation = 'none';
       svgEl('polygon', { points: G.pointsAttr(G.shrinkPolygon(G.cellPolygon(cell.r, cell.c), 0.86)) }, g);
       const [cx, cy] = G.cellCentroid(cell.r, cell.c);
       svgEl('polygon', { points: G.pointsAttr(G.starPoints(cx, cy, 11, 4.6, 5, -Math.PI / 2)), class: 'blocker-star' }, g);
@@ -111,7 +195,7 @@
     els.board.querySelectorAll('.cell').forEach(c => c.classList.toggle('blocked', state.blocked.includes(+c.dataset.i)));
   }
 
-  // Draw a piece (any set of absolute or normalized cells) into an SVG parent.
+  // Draw a piece (absolute or normalized cells) into an SVG parent.
   function drawPiece(parent, piece, cellsRC) {
     const g = svgEl('g', { class: 'piece piece-' + piece.id }, parent);
     const d = G.outlinePath(cellsRC);
@@ -161,17 +245,14 @@
     updatePiecesLeft();
   }
   function makeSlot(piece) {
-    const slot = document.createElement('div');
-    slot.className = 'slot';
-    slot.dataset.id = piece.id;
-    slot.title = piece.name;
+    const slot = el('div', { class: 'slot', 'data-id': piece.id, title: piece.name });
     const orient = state.trayOrient[piece.id] || 0;
     const cellsRC = SHAPES[piece.shape].orients[orient].cells;
-    const bb = G.cellsBBox(cellsRC), m = 6;
+    const bb = G.cellsBBox(cellsRC), m = 6, k = trayScale();
     const svg = document.createElementNS(SVG_NS, 'svg');
     svg.setAttribute('viewBox', (bb.x - m) + ' ' + (bb.y - m) + ' ' + (bb.w + 2 * m) + ' ' + (bb.h + 2 * m));
-    svg.style.width = ((bb.w + 2 * m) * TRAY_SCALE) + 'px';
-    svg.style.height = ((bb.h + 2 * m) * TRAY_SCALE) + 'px';
+    svg.style.width = ((bb.w + 2 * m) * k) + 'px';
+    svg.style.height = ((bb.h + 2 * m) * k) + 'px';
     drawPiece(svg, piece, cellsRC);
     slot.appendChild(svg);
     if (state.placed[piece.id]) slot.classList.add('placed');
@@ -193,8 +274,7 @@
     els.tray.querySelectorAll('.slot').forEach(s => s.classList.toggle('selected', s.dataset.id === state.selected));
   }
   function updatePiecesLeft() {
-    const left = PIECES.length - Object.keys(state.placed).length;
-    els.left.textContent = hasPuzzle() ? left + ' left' : '';
+    els.left.textContent = hasPuzzle() ? piecesLeft() + ' left' : '';
   }
 
   // ------------------------------------------------------------------ drag & drop
@@ -293,7 +373,6 @@
     if (!d || (e && e.pointerId !== undefined && e.pointerId !== d.pointerId)) return;
     if (e && e.type === 'pointercancel') d.snap = null;
     else if (e && typeof e.clientX === 'number') {
-      // Use the release position too, in case no intermediate move events arrived.
       d.x = e.clientX; d.y = e.clientY;
       if (Math.hypot(e.clientX - d.startX, e.clientY - d.startY) > 5) d.moved = true;
       d.snap = d.moved ? computeSnap(d) : null;
@@ -325,7 +404,6 @@
     d.snap = null;
     onDragEnd(null);
   }
-
   function rotateActive(dir) {
     const d = state.drag;
     if (d) {
@@ -350,31 +428,36 @@
   function computeGolden(excludeId) {
     const a = state.placed.sky1, b = state.placed.sky2;
     if (!a || !b || excludeId === 'sky1' || excludeId === 'sky2') return false;
-    const cellsRC = absCells('sky1', a).concat(absCells('sky2', b));
-    return !!G.commonVertex(cellsRC);
+    return !!G.commonVertex(absCells('sky1', a).concat(absCells('sky2', b)));
   }
   function afterChange() {
     state.golden = computeGolden();
     refreshGoldenClasses();
     updatePiecesLeft();
-    if (!state.solved && hasPuzzle() && Object.keys(state.placed).length === PIECES.length) onSolved();
+    if (!state.solved && hasPuzzle() && piecesLeft() === 0) onSolved();
+    else emit('progress', { left: piecesLeft() });
     updateStatus();
+    updateButtons();
     saveGame();
   }
   function onSolved() {
     state.solved = true;
     stopTimer();
     els.gPieces.querySelectorAll('.piece').forEach(g => g.classList.add('locked'));
-    if (!state.revealed) {
-      records.solved++;
-      if (state.golden) records.golden++;
-      if (state.hints === 0) {
-        if (records.bestTime === null || state.elapsed < records.bestTime) records.bestTime = state.elapsed;
-        if (state.golden && (records.bestGolden === null || state.elapsed < records.bestGolden)) records.bestGolden = state.elapsed;
-      }
-      saveRecords();
-      renderRecords();
-    }
+    const entry = {
+      nick: GS.account ? GS.account.nick() : 'Guest',
+      blocked: state.blocked.map(i => i + 1),
+      roll: state.roll ? state.roll.slice() : null,
+      custom: state.custom,
+      time_ms: Math.round(state.elapsed),
+      golden: state.golden,
+      hints: state.hints,
+      revealed: state.revealed,
+      lobby_code: null, round: null, rank: null, player_count: null,
+    };
+    if (state.lobbyRound && GS.lobby) Object.assign(entry, GS.lobby.finishInfo(state.lobbyRound));
+    GS.backend.games.log(entry).then(refreshRecords).catch(e => console.warn('Could not log the game', e));
+    emit('solved', entry);
     confetti(state.golden);
     setTimeout(showResultModal, 450);
   }
@@ -387,7 +470,12 @@
     else if (state.hints) html += '<p class="muted">Solved with ' + state.hints + ' hint' + (state.hints > 1 ? 's' : '') + ' — best times only count hint-free solves.</p>';
     else html += '<p>Nice work — every triangle is filled.</p>';
     if (!state.golden) html += '<p class="muted">' + (state.starPossible ? 'The Golden Star was possible on this roll — try again for the double win!' : 'The Golden Star was not possible on this roll.') + '</p>';
-    if (state.roll) html += '<p class="muted">Puzzle ' + puzzleLabel() + '</p>';
+    if (state.lobbyRound) {
+      html += '<p class="muted">Your result is in the lobby scoreboard. Waiting for the other players… the host starts the next round.</p>';
+      showModal({ title: 'Round ' + state.lobbyRound.round + (state.golden ? ' — Genius! ✨' : ' complete!'), html });
+      return;
+    }
+    if (state.roll) html += '<p class="muted">Puzzle ' + esc(puzzleLabel()) + '</p>';
     showModal({
       title: state.golden ? 'Genius! ✨' : 'Star complete!',
       html,
@@ -403,14 +491,14 @@
     resetPuzzleState();
     state.blocked = blocked; state.roll = roll; state.custom = custom;
     renderBlockers(false); renderPieces(); renderTray();
-    startTimer(); updateStatus(); saveGame();
+    startTimer(); updateStatus(); updateButtons(); saveGame();
   }
   function resetPuzzleState() {
     if (state.drag) cancelDrag();
     stopTimer();
     state.placed = {}; state.selected = null; state.solved = false; state.golden = false;
     state.hints = 0; state.revealed = false; state.starPossible = null; state.elapsed = 0; state.running = false;
-    state.editing = false;
+    state.editing = false; state.lobbyRound = null;
     els.editBar.classList.add('hidden');
     document.body.classList.remove('editing');
     els.gGhost.innerHTML = '';
@@ -439,43 +527,38 @@
   }
 
   // ------------------------------------------------------------------ rolls
+  // opts: { animate, external (lobby-driven), lobbyRound: {code, round} }
   function newRoll(numbers, opts) {
     opts = opts || {};
-    if (busy || state.drag) return Promise.resolve();
+    if (busy || state.drag) return Promise.resolve(false);
+    if (state.lobbyMode && !opts.external) { toast('In a lobby the host starts each round.'); return Promise.resolve(false); }
     const roll = numbers ? D.normalizeRoll(numbers) : D.roll();
-    if (!roll) { toast('That is not a possible roll of the seven dice.'); return Promise.resolve(); }
+    if (!roll) { toast('That is not a possible roll of the seven dice.'); return Promise.resolve(false); }
     resetPuzzleState();
     state.roll = roll; state.custom = false;
     state.blocked = roll.map(n => n - 1).sort((a, b) => a - b);
-    renderBlockers(false);
+    state.lobbyRound = opts.lobbyRound || null;
     els.gBlockers.innerHTML = '';
+    els.board.querySelectorAll('.cell').forEach(c => c.classList.remove('blocked'));
     renderPieces(); renderTray();
-    records.played++; saveRecords(); renderRecords();
     updateStatus('Rolling…');
     const finish = () => {
       renderDice(roll);
       renderBlockers(opts.animate !== false);
       startTimer();
-      updateStatus();
-      updateHash();
-      saveGame();
+      updateStatus(); updateButtons(); updateHash(); saveGame();
+      emit('roll', { roll: roll.slice(), blocked: state.blocked.slice(), lobbyRound: state.lobbyRound });
     };
-    if (opts.animate === false) { finish(); return Promise.resolve(); }
-    busy = true;
-    return animateDice(roll).then(() => { busy = false; finish(); });
+    if (opts.animate === false) { finish(); return Promise.resolve(true); }
+    busy = true; updateButtons();
+    return animateDice(roll).then(() => { busy = false; finish(); return true; });
   }
   function renderDice(values) {
     els.dice.innerHTML = '';
     D.DICE.forEach((die, i) => {
-      const d = document.createElement('div');
-      d.className = 'die d' + die.sides;
-      const n = document.createElement('span');
-      n.className = 'num';
-      n.textContent = values ? values[i] : '–';
-      const k = document.createElement('span');
-      k.className = 'kind';
-      k.textContent = 'd' + die.sides;
-      d.appendChild(n); d.appendChild(k);
+      const d = el('div', { class: 'die d' + die.sides },
+        el('span', { class: 'num', text: values ? String(values[i]) : '–' }),
+        el('span', { class: 'kind', text: 'd' + die.sides }));
       els.dice.appendChild(d);
     });
   }
@@ -505,14 +588,14 @@
 
   // ------------------------------------------------------------------ custom blockers
   function startEditing() {
-    if (busy || state.drag) return;
+    if (busy || state.drag || state.lobbyMode) return;
     resetPuzzleState();
     state.editing = true; state.custom = true; state.roll = null; state.blocked = [];
     renderDice(null); renderBlockers(false); renderPieces(); renderTray();
     els.editCount.textContent = '0/7';
     els.editBar.classList.remove('hidden');
     document.body.classList.add('editing');
-    updateStatus();
+    updateStatus(); updateButtons();
   }
   function onCellClick(i) {
     if (!state.editing) return;
@@ -532,15 +615,14 @@
     const sol = S.solveAny({ blocked: state.blocked });
     state.starPossible = sol ? sol.star : false;
     if (!sol) toast('Heads up: this blocker layout has no solution at all!', 4500);
-    records.played++; saveRecords(); renderRecords();
-    renderTray(); startTimer(); updateStatus(); updateHash(); saveGame();
+    renderTray(); startTimer(); updateStatus(); updateButtons(); updateHash(); saveGame();
   }
   function cancelEditing() {
     state.editing = false;
     els.editBar.classList.add('hidden');
     document.body.classList.remove('editing');
     state.blocked = []; state.custom = false;
-    renderBlockers(false); updateStatus();
+    renderBlockers(false); updateStatus(); updateButtons();
     newRoll();
   }
 
@@ -575,6 +657,7 @@
   }
   function hint() {
     if (!hasPuzzle() || state.solved || busy || state.drag) return;
+    if (state.lobbyMode) { toast('No hints during lobby rounds — fair play!'); return; }
     const sol = solveFromHere();
     if (!sol) { toast('No solution is possible with the pieces where they are — try moving some.', 3500); return; }
     const todo = expandPlacements(sol.placements).sort((a, b) => b.cells.length - a.cells.length);
@@ -591,6 +674,7 @@
   }
   function showSolution() {
     if (!hasPuzzle() || state.solved || busy || state.drag) return;
+    if (state.lobbyMode) { toast('Solutions are hidden during lobby rounds.'); return; }
     let sol = solveFromHere();
     if (!sol) {
       state.placed = {};
@@ -609,6 +693,7 @@
   }
   function checkGoldenPossible() {
     if (!hasPuzzle()) return;
+    if (state.lobbyMode) { toast('The Golden Star check is off during lobby rounds.'); return; }
     if (state.starPossible === null) state.starPossible = !!S.solve({ blocked: state.blocked, star: true });
     showModal({
       title: state.starPossible ? '★ Golden Star possible' : 'No Golden Star this time',
@@ -631,87 +716,109 @@
     st.classList.toggle('golden', !!state.golden && !state.solved);
     if (text) { st.textContent = text; return; }
     if (state.editing) st.textContent = 'Custom puzzle — tap seven cells to place the blockers.';
-    else if (!hasPuzzle()) st.textContent = 'Roll the dice to start.';
+    else if (!hasPuzzle()) st.textContent = state.lobbyMode ? 'Waiting for the host to start a round.' : 'Roll the dice to start.';
     else if (state.solved) st.textContent = state.golden ? '★ Golden Star! Solved in ' + fmtTime(state.elapsed) : 'Solved in ' + fmtTime(state.elapsed) + '.';
     else {
-      const left = PIECES.length - Object.keys(state.placed).length;
+      const left = piecesLeft();
       let s = left === PIECES.length ? 'Fill every empty triangle with the eleven pieces.' : left + ' piece' + (left > 1 ? 's' : '') + ' to go.';
       if (state.golden) s = '★ Golden Star formed! ' + s;
       if (state.hints) s += ' (' + state.hints + ' hint' + (state.hints > 1 ? 's' : '') + ')';
+      if (state.lobbyRound) s = 'Round ' + state.lobbyRound.round + ' · ' + s;
       st.textContent = s;
     }
     els.code.innerHTML = '';
     if (hasPuzzle()) {
-      const span = document.createElement('span');
-      span.textContent = (state.custom ? 'Custom puzzle' : 'Puzzle ' + puzzleLabel());
-      els.code.appendChild(span);
-      const btn = document.createElement('button');
-      btn.className = 'link';
-      btn.textContent = 'copy link';
-      btn.title = 'Copy a link to this exact puzzle';
-      btn.addEventListener('click', copyLink);
-      els.code.appendChild(btn);
+      els.code.appendChild(el('span', { text: state.custom ? 'Custom puzzle' : 'Puzzle ' + puzzleLabel() }));
+      if (!state.lobbyMode) {
+        els.code.appendChild(el('button', { class: 'link', type: 'button', text: 'copy link', title: 'Copy a link to this exact puzzle', onclick: copyLink }));
+      }
     }
   }
-  function renderRecords() {
-    const r = records;
-    const rec = (label, value) => '<div class="rec"><b>' + value + '</b><span>' + label + '</span></div>';
-    els.records.innerHTML =
-      rec('Best time', r.bestTime === null ? '–' : fmtTime(r.bestTime)) +
-      rec('Best Golden Star', r.bestGolden === null ? '–' : fmtTime(r.bestGolden)) +
-      rec('Solved', r.solved + ' / ' + r.played) +
-      rec('Golden Stars', r.golden);
+  function computeStats(list) {
+    let solved = 0, golden = 0, bestTime = null, bestGolden = null, lobbyWins = 0;
+    for (const g of list) {
+      if (g.revealed) continue;
+      solved++;
+      if (g.golden) golden++;
+      if (!g.hints) {
+        if (bestTime === null || g.time_ms < bestTime) bestTime = g.time_ms;
+        if (g.golden && (bestGolden === null || g.time_ms < bestGolden)) bestGolden = g.time_ms;
+      }
+      if (g.lobby_code && g.rank === 1 && g.player_count > 1) lobbyWins++;
+    }
+    return { solved, golden, bestTime, bestGolden, lobbyWins, total: list.length };
   }
-  function loadRecords() {
-    try { const s = JSON.parse(localStorage.getItem(KEY_RECORDS)); if (s) records = Object.assign(records, s); } catch (_) { /* ignore */ }
+  function renderRecords(st) {
+    const rec = (label, value) => el('div', { class: 'rec' }, el('b', { text: value }), el('span', { text: label }));
+    els.records.innerHTML = '';
+    els.records.appendChild(rec('Best time', st.bestTime === null ? '–' : fmtTime(st.bestTime)));
+    els.records.appendChild(rec('Best Golden Star', st.bestGolden === null ? '–' : fmtTime(st.bestGolden)));
+    els.records.appendChild(rec('Solved', String(st.solved)));
+    els.records.appendChild(rec('Golden Stars', String(st.golden)));
+    els.records.appendChild(rec('Lobby wins', String(st.lobbyWins)));
+    els.records.appendChild(rec('Games logged', String(st.total)));
   }
-  function saveRecords() { try { localStorage.setItem(KEY_RECORDS, JSON.stringify(records)); } catch (_) { /* ignore */ } }
-  function resetRecords() {
-    showModal({
-      title: 'Reset records?',
-      html: '<p>This clears your best times and counters on this device.</p>',
-      buttons: [{ label: 'Cancel' }, { label: 'Reset', primary: true, onClick: () => { records = { played: 0, solved: 0, golden: 0, bestTime: null, bestGolden: null }; saveRecords(); renderRecords(); } }],
-    });
+  function refreshRecords() {
+    const seq = ++recordsSeq;
+    return GS.backend.games.list({ limit: 500 })
+      .then(list => { if (seq === recordsSeq) renderRecords(computeStats(list)); })
+      .catch(e => { console.warn('Could not load records', e); if (seq === recordsSeq) renderRecords(computeStats([])); });
   }
   function saveGame() {
     lastSave = performance.now();
     try {
-      if (!hasPuzzle()) { localStorage.removeItem(KEY_GAME); return; }
+      if (!hasPuzzle() || state.lobbyMode) { localStorage.removeItem(KEY_GAME); return; }
       localStorage.setItem(KEY_GAME, JSON.stringify({
         roll: state.roll, custom: state.custom, blocked: state.blocked, placed: state.placed, trayOrient: state.trayOrient,
         elapsed: state.elapsed, solved: state.solved, hints: state.hints, revealed: state.revealed,
       }));
-    } catch (_) { /* ignore */ }
+    } catch (_) { /* storage unavailable */ }
   }
   function restoreGame(wanted) {
     let s = null;
     try { s = JSON.parse(localStorage.getItem(KEY_GAME)); } catch (_) { return false; }
     if (!s || !Array.isArray(s.blocked) || s.blocked.length !== 7 || s.solved) return false;
+    if (!s.blocked.every(i => Number.isInteger(i) && i >= 0 && i < 48)) return false;
     if (wanted && wanted.join(',') !== s.blocked.slice().sort((a, b) => a - b).join(',')) return false;
     resetPuzzleState();
     state.roll = s.roll; state.custom = !!s.custom; state.blocked = s.blocked.slice().sort((a, b) => a - b);
-    state.placed = s.placed || {}; state.trayOrient = s.trayOrient || {};
-    state.elapsed = s.elapsed || 0; state.hints = s.hints || 0; state.revealed = !!s.revealed;
+    state.placed = {}; state.trayOrient = {};
+    // Validate placements against the pre-computed placement table before trusting them.
+    const occ = occupancy();
+    for (const id in (s.placed || {})) {
+      const p = s.placed[id];
+      if (!PIECE_BY_ID[id] || !p || !Array.isArray(p.cells)) continue;
+      const pl = S.findPlacement(PIECE_BY_ID[id].shape, p.cells);
+      if (!pl || pl.cells.some(i => occ[i])) continue;
+      state.placed[id] = { orient: pl.orient, r: pl.r, c: pl.c, cells: pl.cells.slice() };
+      pl.cells.forEach(i => { occ[i] = id; });
+    }
+    for (const id in (s.trayOrient || {})) {
+      const o = s.trayOrient[id];
+      if (PIECE_BY_ID[id] && Number.isInteger(o) && o >= 0 && o < SHAPES[PIECE_BY_ID[id].shape].orients.length) state.trayOrient[id] = o;
+    }
+    state.elapsed = Math.max(0, Number(s.elapsed) || 0); state.hints = Math.max(0, Number(s.hints) || 0); state.revealed = !!s.revealed;
     renderDice(state.roll); renderBlockers(false); renderPieces(); renderTray();
     state.golden = computeGolden(); refreshGoldenClasses();
-    startTimer(); updateStatus(); updateHash();
+    startTimer(); updateStatus(); updateButtons(); updateHash();
     return true;
   }
 
   // ------------------------------------------------------------------ links
   function updateHash() {
-    if (!hasPuzzle()) return;
+    if (!hasPuzzle() || state.lobbyMode) return;
     const h = state.custom ? '#custom=' + state.blocked.map(i => i + 1).join('.') : '#roll=' + state.roll.slice().sort((a, b) => a - b).join('.');
     if (location.hash !== h) history.replaceState(null, '', h);
   }
   function parseHash() {
     const m = /^#(roll|custom)=([\d.]+)$/.exec(location.hash || '');
     if (!m) return null;
-    const nums = m[2].split('.').map(Number).filter(n => n >= 1 && n <= 48);
-    if (new Set(nums).size !== 7) return null;
+    const nums = m[2].split('.').map(Number).filter(n => Number.isInteger(n) && n >= 1 && n <= 48);
+    if (new Set(nums).size !== 7 || nums.length !== 7) return null;
     return { kind: m[1], nums };
   }
   function applyHashPuzzle(h) {
+    if (state.lobbyMode) return false;
     const cells = h.nums.map(n => n - 1).sort((a, b) => a - b);
     if (restoreGame(cells)) return true;
     if (h.kind === 'roll') {
@@ -722,62 +829,36 @@
     resetPuzzleState();
     state.custom = true; state.roll = null; state.blocked = cells;
     renderDice(null); renderBlockers(true); renderPieces(); renderTray();
-    records.played++; saveRecords(); renderRecords();
-    startTimer(); updateStatus(); saveGame();
+    startTimer(); updateStatus(); updateButtons(); saveGame();
     return true;
   }
   function copyLink() {
     updateHash();
-    const url = location.href;
-    const done = () => toast('Link copied — send it to a friend and race on the same puzzle!');
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, () => prompt('Copy this link:', url));
-    else prompt('Copy this link:', url);
+    copyText(location.href, 'Link copied — send it to a friend and race on the same puzzle!');
   }
+  function copyText(text, doneMsg) {
+    const done = () => toast(doneMsg);
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, () => prompt('Copy this link:', text));
+    else prompt('Copy this link:', text);
+  }
+  GS.ui.copyText = copyText;
 
   // ------------------------------------------------------------------ modals
-  function showModal(opts) {
-    els.modal.innerHTML = '';
-    const back = document.createElement('div');
-    back.className = 'modal-backdrop';
-    const box = document.createElement('div');
-    box.className = 'modal';
-    box.innerHTML = '<h2>' + opts.title + '</h2><div class="modal-body">' + opts.html + '</div>';
-    const row = document.createElement('div');
-    row.className = 'btn-row modal-buttons';
-    (opts.buttons || [{ label: 'Close' }]).forEach(b => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.textContent = b.label;
-      if (b.primary) btn.className = 'primary';
-      btn.addEventListener('click', () => { closeModal(); if (b.onClick) b.onClick(box); });
-      row.appendChild(btn);
-    });
-    box.appendChild(row);
-    back.appendChild(box);
-    back.addEventListener('click', e => { if (e.target === back) closeModal(); });
-    els.modal.appendChild(back);
-    els.modal.classList.remove('hidden');
-    const first = box.querySelector('select, button.primary, button');
-    if (first) first.focus();
-  }
-  function closeModal() { els.modal.classList.add('hidden'); els.modal.innerHTML = ''; }
-  function modalOpen() { return !els.modal.classList.contains('hidden'); }
-
   function showEnterRoll() {
-    if (busy || state.drag) return;
-    let html = '<p>Pick the number showing on each of your seven dice.</p><div class="roll-grid">';
+    if (busy || state.drag || state.lobbyMode) return;
+    const grid = el('div', { class: 'roll-grid' });
     D.DICE.forEach((die, i) => {
-      html += '<label>d' + die.sides + '<select data-die="' + i + '">' +
-        die.values.map(v => '<option value="' + v + '"' + (state.roll && state.roll[i] === v ? ' selected' : '') + '>' + v + '</option>').join('') +
-        '</select></label>';
+      const sel = el('select', { 'data-die': i, 'aria-label': 'Die ' + (i + 1) });
+      die.values.forEach(v => sel.appendChild(el('option', { value: v, text: String(v), selected: state.roll && state.roll[i] === v })));
+      grid.appendChild(el('label', {}, 'd' + die.sides, sel));
     });
-    html += '</div><p class="muted">Every combination the dice can produce is solvable.</p>';
+    const node = el('div', {}, el('p', { text: 'Pick the number showing on each of your seven dice.' }), grid,
+      el('p', { class: 'muted', text: 'Every combination the dice can produce is solvable.' }));
     showModal({
       title: 'Enter a roll',
-      html,
+      node,
       buttons: [{ label: 'Cancel' }, { label: 'Start puzzle', primary: true, onClick: box => {
-        const nums = [...box.querySelectorAll('select')].map(s => Number(s.value));
-        newRoll(nums, { animate: false });
+        newRoll([...box.querySelectorAll('select')].map(s => Number(s.value)), { animate: false });
       } }],
     });
   }
@@ -787,12 +868,15 @@
       html:
         '<p><b>Roll</b> the seven dice. A white star blocker is placed on each numbered triangle.</p>' +
         '<p><b>Fill</b> every remaining triangle with the eleven coloured pieces. Drag a piece from the tray onto the star; ' +
-        'it snaps into place when it fits. Drag a piece off the board (or click it) to return it to the tray.</p>' +
-        '<ul><li><b>R</b> / ⟳ rotates, <b>Shift+R</b> / ⟲ rotates the other way, <b>F</b> / ⇅ flips a piece. The scroll wheel rotates too — even mid-drag.</li>' +
+        'it snaps into place when it fits. Drag a piece off the board (or tap it) to return it to the tray.</p>' +
+        '<ul><li><b>R</b> / ⟳ rotates, <b>Shift+R</b> / ⟲ rotates the other way, <b>F</b> / ⇅ flips a piece. The scroll wheel rotates too — even mid-drag. ' +
+        'On a phone, tap a selected piece to rotate it.</li>' +
         '<li><b>H</b> gives a hint, <b>N</b> rolls a new puzzle, <b>Esc</b> drops the piece you are holding.</li></ul>' +
         '<p><b>The Golden Star:</b> the two light-blue halves join into a hexagon that shows a golden star. Finish the puzzle with the ' +
         'Golden Star whole for a <b>double win</b> — but only about 58% of rolls allow it, so it is a gamble!</p>' +
-        '<p><b>Race a friend:</b> use <i>copy link</i> to share the exact puzzle, or play the <i>Daily star</i>. Every roll the dice can produce has a solution.</p>' +
+        '<p><b>Play together:</b> create a lobby, share the code, and up to five players race on identical rolls. ' +
+        'The first to finish wins the round (two points with the Golden Star). Hints are off in lobbies.</p>' +
+        '<p><b>Accounts:</b> sign in to keep your records and game history on your profile; guests keep them in this browser.</p>' +
         '<p class="muted">The Genius Star is a game by The Happy Puzzle Company. This is an unofficial fan-made web version.</p>',
     });
   }
@@ -802,8 +886,7 @@
     const colors = golden ? ['#ffd54a', '#fff3b0', '#f5a623', '#ffffff', '#f8cf4a']
       : ['#e3403c', '#f9c62a', '#93d13a', '#3b63d6', '#f29ab9', '#8146b5', '#7cc8ef', '#f58b2b'];
     for (let i = 0; i < 110; i++) {
-      const p = document.createElement('div');
-      p.className = 'confetti';
+      const p = el('div', { class: 'confetti' });
       p.style.left = (Math.random() * 100) + 'vw';
       p.style.background = colors[i % colors.length];
       p.style.animationDelay = (Math.random() * 0.9) + 's';
@@ -814,9 +897,21 @@
     }
   }
 
+  // ------------------------------------------------------------------ lobby hooks
+  function setLobbyMode(active) {
+    state.lobbyMode = !!active;
+    if (!active) state.lobbyRound = null;
+    document.body.classList.toggle('in-lobby', state.lobbyMode);
+    updateStatus(); updateButtons(); saveGame();
+  }
+  function startLobbyRound(info) {
+    return newRoll(info.roll, { animate: true, external: true, lobbyRound: { code: info.code, round: info.round } });
+  }
+
   // ------------------------------------------------------------------ wiring
   function requestNewRoll() {
     if (busy || state.drag) return;
+    if (state.lobbyMode) { toast('In a lobby the host starts each round.'); return; }
     if (hasPuzzle() && !state.solved && Object.keys(state.placed).length) {
       showModal({ title: 'Roll again?', html: '<p>Your current puzzle will be abandoned.</p>',
         buttons: [{ label: 'Keep playing' }, { label: 'Roll the dice', primary: true, onClick: () => newRoll() }] });
@@ -837,13 +932,13 @@
     $('#btn-solution').addEventListener('click', showSolution);
     $('#btn-clear').addEventListener('click', clearPieces);
     $('#btn-help').addEventListener('click', showHelp);
-    $('#btn-reset-records').addEventListener('click', resetRecords);
     window.addEventListener('wheel', e => {
       if (!state.drag) return;
       e.preventDefault();
       rotateActive(e.deltaY > 0 ? 'cw' : 'ccw');
     }, { passive: false });
     window.addEventListener('resize', () => { if (state.drag) updateDragVisual(); });
+    if (phoneQuery.addEventListener) phoneQuery.addEventListener('change', () => renderTray());
     window.addEventListener('hashchange', () => {
       const h = parseHash();
       if (h) applyHashPuzzle(h);
@@ -874,7 +969,7 @@
     els.records = $('#records'); els.editBar = $('#edit-bar'); els.editCount = $('#edit-count');
     els.toast = $('#toast'); els.modal = $('#modal-root');
     buildBoard();
-    loadRecords(); renderRecords();
+    renderRecords(computeStats([]));
     renderDice(null); renderTray();
     bindButtons(); bindKeys();
     S.build();
@@ -883,6 +978,9 @@
     if (!restoreGame()) newRoll();
   }
 
-  GS.game = { state, newRoll, hint, showSolution, init };
+  GS.game = {
+    state, on, newRoll, hint, showSolution, refreshRecords, computeStats, hasPuzzle,
+    setLobbyMode, startLobbyRound, showHelp, init,
+  };
   document.addEventListener('DOMContentLoaded', init);
 })(window);

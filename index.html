@@ -3,8 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; base-uri 'self'; form-action 'self'; object-src 'none'">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0b1020">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>The Genius Star</title>
-  <meta name="description" content="Web version of The Genius Star puzzle game: roll seven dice, place the blockers and fill the star with eleven pieces.">
+  <meta name="description" content="Web version of The Genius Star puzzle game: roll seven dice, place the blockers and fill the star with eleven pieces. Play solo or race friends in a lobby.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%AD%90%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -14,10 +19,11 @@
       <span class="brand-star" aria-hidden="true">★</span>
       <div>
         <div class="brand-title">THE GENIUS STAR</div>
-        <div class="brand-sub">165,888 puzzles · web edition</div>
+        <div class="brand-sub">165,888 puzzles · <span id="backend-tag">…</span></div>
       </div>
     </div>
-    <div class="btn-row">
+    <div class="btn-row topbar-actions">
+      <button id="user-chip" type="button" class="chip" title="Account"><span class="chip-icon">👤</span><span class="chip-name">…</span></button>
       <button id="btn-help" type="button">How to play</button>
     </div>
   </header>
@@ -42,6 +48,23 @@
     </section>
 
     <aside class="side">
+      <div class="card tray-card">
+        <h2>Pieces <span id="pieces-left"></span></h2>
+        <div class="btn-row piece-controls">
+          <button id="btn-ccw" type="button" class="icon" title="Rotate anticlockwise (Shift+R)" aria-label="Rotate anticlockwise">⟲</button>
+          <button id="btn-cw" type="button" class="icon" title="Rotate clockwise (R)" aria-label="Rotate clockwise">⟳</button>
+          <button id="btn-flip" type="button" class="icon" title="Flip (F)" aria-label="Flip">⇅</button>
+          <span class="hint-text">Drag pieces onto the star · R rotates · F flips · tap a selected piece to rotate</span>
+        </div>
+        <div class="tray" id="tray"></div>
+        <div class="btn-row">
+          <button id="btn-hint" type="button" title="Place one piece from a solution (H)">💡 Hint</button>
+          <button id="btn-golden" type="button" title="Is the Golden Star possible for this roll?">★ Golden Star?</button>
+          <button id="btn-solution" type="button" title="Show a full solution">👁 Solution</button>
+          <button id="btn-clear" type="button" title="Return all pieces to the tray">↺ Clear</button>
+        </div>
+      </div>
+
       <div class="card dice-card">
         <h2>Dice</h2>
         <div class="dice" id="dice"></div>
@@ -55,25 +78,13 @@
         </div>
       </div>
 
-      <div class="card tray-card">
-        <h2>Pieces <span id="pieces-left"></span></h2>
-        <div class="btn-row piece-controls">
-          <button id="btn-ccw" type="button" class="icon" title="Rotate anticlockwise (Shift+R)">⟲</button>
-          <button id="btn-cw" type="button" class="icon" title="Rotate clockwise (R)">⟳</button>
-          <button id="btn-flip" type="button" class="icon" title="Flip (F)">⇅</button>
-          <span class="hint-text">Drag pieces onto the star · R rotates · F flips · scroll wheel rotates</span>
-        </div>
-        <div class="tray" id="tray"></div>
-        <div class="btn-row">
-          <button id="btn-hint" type="button" title="Place one piece from a solution (H)">💡 Hint</button>
-          <button id="btn-golden" type="button" title="Is the Golden Star possible for this roll?">★ Golden Star?</button>
-          <button id="btn-solution" type="button" title="Show a full solution">👁 Solution</button>
-          <button id="btn-clear" type="button" title="Return all pieces to the tray">↺ Clear</button>
-        </div>
+      <div class="card lobby-card" id="lobby-card">
+        <h2>Play together <span id="lobby-mode-tag" class="tag"></span></h2>
+        <div id="lobby-body"></div>
       </div>
 
       <div class="card records-card">
-        <h2>Your records <button id="btn-reset-records" type="button" class="link">reset</button></h2>
+        <h2>Records <span class="tag">of <span id="records-owner">this browser</span></span></h2>
         <div id="records" class="records"></div>
       </div>
     </aside>
@@ -83,10 +94,15 @@
   <div id="modal-root" class="hidden"></div>
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
+  <script src="vendor/supabase.js"></script>
+  <script src="/api/config"></script>
   <script src="js/geometry.js"></script>
   <script src="js/pieces.js"></script>
   <script src="js/dice.js"></script>
   <script src="js/solver.js"></script>
+  <script src="js/backend.js"></script>
   <script src="js/game.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/lobby.js"></script>
 </body>
 </html>
