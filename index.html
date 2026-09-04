@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>The Genius Star</title>
+  <meta name="description" content="Web version of The Genius Star puzzle game: roll seven dice, place the blockers and fill the star with eleven pieces.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%AD%90%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-star" aria-hidden="true">★</span>
+      <div>
+        <div class="brand-title">THE GENIUS STAR</div>
+        <div class="brand-sub">165,888 puzzles · web edition</div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button id="btn-help" type="button">How to play</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="card board-panel">
+      <div class="status">
+        <div class="timer" id="timer" aria-live="off">0:00.0</div>
+        <div class="status-text" id="status">Roll the dice to start</div>
+        <div class="puzzle-code" id="puzzle-code"></div>
+      </div>
+      <div class="board-wrap">
+        <svg id="board" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Genius Star board"></svg>
+      </div>
+      <div class="edit-bar hidden" id="edit-bar">
+        <span>Tap cells to place seven blockers · <strong id="edit-count">0/7</strong></span>
+        <span class="btn-row">
+          <button id="btn-edit-done" type="button" class="primary">Start puzzle</button>
+          <button id="btn-edit-cancel" type="button">Cancel</button>
+        </span>
+      </div>
+    </section>
+
+    <aside class="side">
+      <div class="card dice-card">
+        <h2>Dice</h2>
+        <div class="dice" id="dice"></div>
+        <div class="btn-row">
+          <button id="btn-roll" type="button" class="primary grow">🎲 Roll the dice</button>
+        </div>
+        <div class="btn-row secondary-row">
+          <button id="btn-enter" type="button" title="Type in a roll from your real dice">Enter a roll</button>
+          <button id="btn-daily" type="button" title="The same puzzle for everyone today">Daily star</button>
+          <button id="btn-custom" type="button" title="Place the seven blockers yourself">Custom blockers</button>
+        </div>
+      </div>
+
+      <div class="card tray-card">
+        <h2>Pieces <span id="pieces-left"></span></h2>
+        <div class="btn-row piece-controls">
+          <button id="btn-ccw" type="button" class="icon" title="Rotate anticlockwise (Shift+R)">⟲</button>
+          <button id="btn-cw" type="button" class="icon" title="Rotate clockwise (R)">⟳</button>
+          <button id="btn-flip" type="button" class="icon" title="Flip (F)">⇅</button>
+          <span class="hint-text">Drag pieces onto the star · R rotates · F flips · scroll wheel rotates</span>
+        </div>
+        <div class="tray" id="tray"></div>
+        <div class="btn-row">
+          <button id="btn-hint" type="button" title="Place one piece from a solution (H)">💡 Hint</button>
+          <button id="btn-golden" type="button" title="Is the Golden Star possible for this roll?">★ Golden Star?</button>
+          <button id="btn-solution" type="button" title="Show a full solution">👁 Solution</button>
+          <button id="btn-clear" type="button" title="Return all pieces to the tray">↺ Clear</button>
+        </div>
+      </div>
+
+      <div class="card records-card">
+        <h2>Your records <button id="btn-reset-records" type="button" class="link">reset</button></h2>
+        <div id="records" class="records"></div>
+      </div>
+    </aside>
+  </main>
+
+  <svg id="drag-layer" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
+  <div id="modal-root" class="hidden"></div>
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="js/geometry.js"></script>
+  <script src="js/pieces.js"></script>
+  <script src="js/dice.js"></script>
+  <script src="js/solver.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

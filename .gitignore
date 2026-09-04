@@ -1,0 +1,9 @@
+node_modules/
+.vercel/
+.env
+.env.*
+config.local.json
+.claude/
+.DS_Store
+Thumbs.db
+*.log
