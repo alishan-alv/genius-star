@@ -91,6 +91,7 @@
     if (GS.account && !GS.account.user()) GS.account.setGuestNick(nick);
     if (location.hash !== '#lobby=' + code) history.replaceState(null, '', '#lobby=' + code);
     render();
+    UI.showPane('lobby');
     return code;
   }
   function leave() {
@@ -141,6 +142,8 @@
     L.results[rd.n] = L.results[rd.n] || [];
     GS.game.startLobbyRound({ code: L.code, round: rd.n, roll: rd.roll });
     track(); render();
+    UI.showPane('play');
+    UI.toast('Round ' + rd.n + ' — go!', 1800);
   }
   function recordFinish(key, data, quiet) {
     const n = Number(data.n);
@@ -210,6 +213,7 @@
     body.textContent = '';
     const tag = $('#lobby-mode-tag');
     if (tag) tag.textContent = B.mode === 'supabase' ? 'online' : 'this device only';
+    UI.setTabBadge('lobby', inLobby() ? (L.members.length + '/' + MAX_PLAYERS) : '');
 
     if (L.connecting) { body.appendChild(el('p', { class: 'muted', text: 'Connecting to the lobby…' })); return; }
     if (!inLobby()) {

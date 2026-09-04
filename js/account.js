@@ -222,6 +222,10 @@
   async function init() {
     const chip = $('#user-chip');
     if (chip) chip.addEventListener('click', openMenu);
+    const profileBtn = $('#btn-profile');
+    if (profileBtn) profileBtn.addEventListener('click', openProfile);
+    const accountBtn = $('#btn-account');
+    if (accountBtn) accountBtn.addEventListener('click', openMenu);
     const tag = $('#backend-tag');
     if (tag) tag.textContent = B.mode === 'supabase' ? 'online' : 'local mode';
     try { await B.init(); } catch (e) { console.warn('Backend init failed', e); }

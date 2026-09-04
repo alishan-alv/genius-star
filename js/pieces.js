@@ -25,18 +25,19 @@
     hex:    { cells: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2]] },
   };
 
+  // Flat neobrutalist palette with black outlines (close to the real wooden pieces).
   const PIECES = [
-    { id: 'blue',   shape: 'blue',   name: 'Blue triangle',      color: '#3b63d6', edge: '#22408f' },
-    { id: 'yellow', shape: 'yellow', name: 'Yellow diamond',     color: '#f9c62a', edge: '#b08a0e' },
-    { id: 'pink',   shape: 'pink',   name: 'Pink parallelogram', color: '#f29ab9', edge: '#b25f80' },
-    { id: 'red',    shape: 'red',    name: 'Red bar',            color: '#e3403c', edge: '#9a2521' },
-    { id: 'lime',   shape: 'lime',   name: 'Lime hook',          color: '#93d13a', edge: '#5f8f1f' },
-    { id: 'orange', shape: 'orange', name: 'Orange chevron',     color: '#f58b2b', edge: '#b25a12' },
-    { id: 'green',  shape: 'green',  name: 'Green cup',          color: '#22855a', edge: '#145238' },
-    { id: 'purple', shape: 'purple', name: 'Purple triangle',    color: '#8146b5', edge: '#552b7c' },
-    { id: 'brown',  shape: 'brown',  name: 'Brown kite',         color: '#8f5a3a', edge: '#5c3822' },
-    { id: 'sky1',   shape: 'sky',    name: 'Golden Star half',   color: '#7cc8ef', edge: '#3c88b5', star: true },
-    { id: 'sky2',   shape: 'sky',    name: 'Golden Star half',   color: '#7cc8ef', edge: '#3c88b5', star: true },
+    { id: 'blue',   shape: 'blue',   name: 'Blue triangle',      color: '#4d80e6', edge: '#000' },
+    { id: 'yellow', shape: 'yellow', name: 'Yellow diamond',     color: '#ffdc58', edge: '#000' },
+    { id: 'pink',   shape: 'pink',   name: 'Pink parallelogram', color: '#ffa8d2', edge: '#000' },
+    { id: 'red',    shape: 'red',    name: 'Red bar',            color: '#ff6b6b', edge: '#000' },
+    { id: 'lime',   shape: 'lime',   name: 'Lime hook',          color: '#a3e636', edge: '#000' },
+    { id: 'orange', shape: 'orange', name: 'Orange chevron',     color: '#ff9f43', edge: '#000' },
+    { id: 'green',  shape: 'green',  name: 'Green cup',          color: '#3fbf7f', edge: '#000' },
+    { id: 'purple', shape: 'purple', name: 'Purple triangle',    color: '#a388ee', edge: '#000' },
+    { id: 'brown',  shape: 'brown',  name: 'Brown kite',         color: '#c68b59', edge: '#000' },
+    { id: 'sky1',   shape: 'sky',    name: 'Golden Star half',   color: '#8fd3ff', edge: '#000', star: true },
+    { id: 'sky2',   shape: 'sky',    name: 'Golden Star half',   color: '#8fd3ff', edge: '#000', star: true },
   ];
 
   // Pre-compute orientations for every shape (needs geometry.js).

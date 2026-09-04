@@ -4,17 +4,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; base-uri 'self'; form-action 'self'; object-src 'none'">
-  <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#0b1020">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#dfe5f2">
   <meta name="mobile-web-app-capable" content="yes">
   <title>The Genius Star</title>
   <meta name="description" content="Web version of The Genius Star puzzle game: roll seven dice, place the blockers and fill the star with eleven pieces. Play solo or race friends in a lobby.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%AD%90%3C/text%3E%3C/svg%3E">
+  <link rel="preload" href="fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <header class="topbar">
+  <header class="top">
     <div class="brand">
       <span class="brand-star" aria-hidden="true">★</span>
       <div>
@@ -22,14 +22,14 @@
         <div class="brand-sub">165,888 puzzles · <span id="backend-tag">…</span></div>
       </div>
     </div>
-    <div class="btn-row topbar-actions">
+    <div class="top-actions">
       <button id="user-chip" type="button" class="chip" title="Account"><span class="chip-icon">👤</span><span class="chip-name">…</span></button>
-      <button id="btn-help" type="button">How to play</button>
+      <button id="btn-help" type="button" class="btn-help" title="How to play" aria-label="How to play">?</button>
     </div>
   </header>
 
-  <main class="layout">
-    <section class="card board-panel">
+  <main class="stage">
+    <section class="card board-card">
       <div class="status">
         <div class="timer" id="timer" aria-live="off">0:00.0</div>
         <div class="status-text" id="status">Roll the dice to start</div>
@@ -41,51 +41,67 @@
       <div class="edit-bar hidden" id="edit-bar">
         <span>Tap cells to place seven blockers · <strong id="edit-count">0/7</strong></span>
         <span class="btn-row">
-          <button id="btn-edit-done" type="button" class="primary">Start puzzle</button>
-          <button id="btn-edit-cancel" type="button">Cancel</button>
+          <button id="btn-edit-done" type="button" class="primary small">Start puzzle</button>
+          <button id="btn-edit-cancel" type="button" class="small">Cancel</button>
         </span>
       </div>
     </section>
 
-    <aside class="side">
-      <div class="card tray-card">
-        <h2>Pieces <span id="pieces-left"></span></h2>
-        <div class="btn-row piece-controls">
-          <button id="btn-ccw" type="button" class="icon" title="Rotate anticlockwise (Shift+R)" aria-label="Rotate anticlockwise">⟲</button>
-          <button id="btn-cw" type="button" class="icon" title="Rotate clockwise (R)" aria-label="Rotate clockwise">⟳</button>
-          <button id="btn-flip" type="button" class="icon" title="Flip (F)" aria-label="Flip">⇅</button>
-          <span class="hint-text">Drag pieces onto the star · R rotates · F flips · tap a selected piece to rotate</span>
+    <aside class="card panel">
+      <nav class="tabs" role="tablist" aria-label="Side panel">
+        <button type="button" class="tab active" data-pane="play" role="tab" aria-selected="true">Play</button>
+        <button type="button" class="tab" data-pane="lobby" role="tab" aria-selected="false">Lobby <span id="lobby-badge" class="tab-badge hidden"></span></button>
+        <button type="button" class="tab" data-pane="records" role="tab" aria-selected="false">Records</button>
+      </nav>
+
+      <div class="pane" id="pane-play" role="tabpanel">
+        <div class="pane-section">
+          <div class="section-head">
+            <span>Pieces</span><span id="pieces-left" class="pill"></span><span class="grow"></span>
+            <div class="piece-controls">
+              <button id="btn-ccw" type="button" class="icon" title="Rotate anticlockwise (Shift+R)" aria-label="Rotate anticlockwise">⟲</button>
+              <button id="btn-cw" type="button" class="icon" title="Rotate clockwise (R)" aria-label="Rotate clockwise">⟳</button>
+              <button id="btn-flip" type="button" class="icon" title="Flip (F)" aria-label="Flip">⇅</button>
+            </div>
+          </div>
+          <div class="tray" id="tray"></div>
+          <div class="btn-row actions">
+            <button id="btn-hint" type="button" title="Place one piece from a solution (H)">💡 Hint</button>
+            <button id="btn-golden" type="button" title="Is the Golden Star possible for this roll?">★ Golden?</button>
+            <button id="btn-solution" type="button" title="Show a full solution">👁 Solution</button>
+            <button id="btn-clear" type="button" title="Return all pieces to the tray">↺ Clear</button>
+          </div>
         </div>
-        <div class="tray" id="tray"></div>
-        <div class="btn-row">
-          <button id="btn-hint" type="button" title="Place one piece from a solution (H)">💡 Hint</button>
-          <button id="btn-golden" type="button" title="Is the Golden Star possible for this roll?">★ Golden Star?</button>
-          <button id="btn-solution" type="button" title="Show a full solution">👁 Solution</button>
-          <button id="btn-clear" type="button" title="Return all pieces to the tray">↺ Clear</button>
+        <div class="pane-section">
+          <div class="section-head"><span>Dice</span></div>
+          <div class="dice" id="dice"></div>
+          <div class="btn-row">
+            <button id="btn-roll" type="button" class="primary grow">🎲 Roll the dice</button>
+          </div>
+          <div class="btn-row secondary-row">
+            <button id="btn-enter" type="button" title="Type in a roll from your real dice">Enter a roll</button>
+            <button id="btn-daily" type="button" title="The same puzzle for everyone today">Daily star</button>
+            <button id="btn-custom" type="button" title="Place the seven blockers yourself">Custom blockers</button>
+          </div>
         </div>
       </div>
 
-      <div class="card dice-card">
-        <h2>Dice</h2>
-        <div class="dice" id="dice"></div>
-        <div class="btn-row">
-          <button id="btn-roll" type="button" class="primary grow">🎲 Roll the dice</button>
-        </div>
-        <div class="btn-row secondary-row">
-          <button id="btn-enter" type="button" title="Type in a roll from your real dice">Enter a roll</button>
-          <button id="btn-daily" type="button" title="The same puzzle for everyone today">Daily star</button>
-          <button id="btn-custom" type="button" title="Place the seven blockers yourself">Custom blockers</button>
+      <div class="pane hidden" id="pane-lobby" role="tabpanel">
+        <div class="pane-section">
+          <div class="section-head"><span>Play together</span><span class="grow"></span><span id="lobby-mode-tag" class="tiny"></span></div>
+          <div id="lobby-body"></div>
         </div>
       </div>
 
-      <div class="card lobby-card" id="lobby-card">
-        <h2>Play together <span id="lobby-mode-tag" class="tag"></span></h2>
-        <div id="lobby-body"></div>
-      </div>
-
-      <div class="card records-card">
-        <h2>Records <span class="tag">of <span id="records-owner">this browser</span></span></h2>
-        <div id="records" class="records"></div>
+      <div class="pane hidden" id="pane-records" role="tabpanel">
+        <div class="pane-section">
+          <div class="section-head"><span>Records</span><span class="grow"></span><span class="tiny">of <span id="records-owner">this browser</span></span></div>
+          <div id="records" class="records"></div>
+          <div class="btn-row actions">
+            <button id="btn-profile" type="button">📜 Profile &amp; history</button>
+            <button id="btn-account" type="button">👤 Account</button>
+          </div>
+        </div>
       </div>
     </aside>
   </main>

@@ -120,7 +120,23 @@
   function closeModal() { els.modal.classList.add('hidden'); els.modal.innerHTML = ''; }
   function modalOpen() { return !els.modal.classList.contains('hidden'); }
 
-  GS.ui = { esc, el, fmtTime, toast, showModal, closeModal, modalOpen };
+  // Side-panel tabs (Play / Lobby / Records).
+  function showPane(name) {
+    document.querySelectorAll('.tabs .tab').forEach(t => {
+      const on = t.dataset.pane === name;
+      t.classList.toggle('active', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    document.querySelectorAll('.pane').forEach(p => p.classList.toggle('hidden', p.id !== 'pane-' + name));
+  }
+  function setTabBadge(name, text) {
+    const b = document.getElementById(name + '-badge');
+    if (!b) return;
+    b.textContent = text || '';
+    b.classList.toggle('hidden', !text);
+  }
+
+  GS.ui = { esc, el, fmtTime, toast, showModal, closeModal, modalOpen, showPane, setTabBadge };
 
   // ------------------------------------------------------------------ helpers
   function clientToSvg(svg, x, y) {
@@ -202,7 +218,7 @@
     const clipId = 'clip' + (++uid);
     const cp = svgEl('clipPath', { id: clipId }, g);
     svgEl('path', { d }, cp);
-    svgEl('path', { d, class: 'piece-shadow', transform: 'translate(0,2.5)' }, g);
+    svgEl('path', { d, class: 'piece-shadow', transform: 'translate(3,3)' }, g);
     svgEl('path', { d, fill: piece.color, stroke: piece.edge, class: 'piece-body' }, g);
     if (piece.star) {
       const v = G.commonVertex(cellsRC);
@@ -212,7 +228,6 @@
         svgEl('polygon', { points: G.pointsAttr(G.starPoints(v.x, v.y, R, R / Math.sqrt(3), 6, 0)), class: 'gold-star' }, sg);
       }
     }
-    svgEl('path', { d, class: 'piece-gloss', 'clip-path': 'url(#' + clipId + ')' }, g);
     return g;
   }
 
@@ -557,8 +572,9 @@
     els.dice.innerHTML = '';
     D.DICE.forEach((die, i) => {
       const d = el('div', { class: 'die d' + die.sides },
-        el('span', { class: 'num', text: values ? String(values[i]) : '–' }),
-        el('span', { class: 'kind', text: 'd' + die.sides }));
+        el('div', { class: 'face' },
+          el('span', { class: 'num', text: values ? String(values[i]) : '–' }),
+          el('span', { class: 'kind', text: 'd' + die.sides })));
       els.dice.appendChild(d);
     });
   }
@@ -932,6 +948,7 @@
     $('#btn-solution').addEventListener('click', showSolution);
     $('#btn-clear').addEventListener('click', clearPieces);
     $('#btn-help').addEventListener('click', showHelp);
+    document.querySelectorAll('.tabs .tab').forEach(t => t.addEventListener('click', () => showPane(t.dataset.pane)));
     window.addEventListener('wheel', e => {
       if (!state.drag) return;
       e.preventDefault();

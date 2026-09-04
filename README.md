@@ -5,6 +5,9 @@ Roll seven dice, place the seven star blockers on the numbered triangles they sh
 remaining triangle with the eleven coloured pieces — alone against the clock or against up to four friends in a lobby.
 
 - **Plain HTML/CSS/JS**, no build step: open `index.html` or run `npm start`.
+- **One screen on desktop**: board, pieces, dice and a Play / Lobby / Records panel fit without scrolling.
+- **Neobrutalism look** following [neobrutalism.dev](https://www.neobrutalism.dev/) (black 2 px borders, hard 4 px shadows,
+  5 px radius, DM Sans self-hosted, the official "yellow" accent).
 - **Accounts** (email + password) keep your records and full game history on your profile; **guests** keep them in the browser.
 - **Lobbies**: 1–5 players race on identical rolls with live progress and a scoreboard.
 - Works on phones (drag with a finger, tap a selected piece to rotate).
