@@ -1,100 +1,147 @@
-# The Genius Star — web edition
+<p align="center">
+  <img src="docs/hero.svg" width="640" alt="A solved Genius Star board: seven white star blockers, eleven coloured pieces and the two light-blue halves joined into the Golden Star">
+</p>
 
-A browser recreation of **The Genius Star**, the star-shaped tiling puzzle by The Happy Puzzle Company.
-Roll seven dice, place the seven star blockers on the numbered triangles they show, then race to fill every
-remaining triangle with the eleven coloured pieces — alone against the clock or against up to four friends in a lobby.
+<h1 align="center">The Genius Star</h1>
 
-- **Plain HTML/CSS/JS**, no build step: open `index.html` or run `npm start`.
-- **One screen on desktop**: board, pieces, dice and a Play / Lobby / Records panel fit without scrolling.
-- **Neobrutalism look** following [neobrutalism.dev](https://www.neobrutalism.dev/) (black 2 px borders, hard 4 px shadows,
-  5 px radius, DM Sans self-hosted, the official "yellow" accent).
-- **Accounts** (email + password) keep your records and full game history on your profile; **guests** keep them in the browser.
-- **Lobbies**: 1–5 players race on identical rolls with live progress and a scoreboard.
-- Works on phones (drag with a finger, tap a selected piece to rotate).
+<p align="center">
+  Roll seven dice, block seven triangles, fill the star with eleven pieces.<br>
+  Alone against the clock, or against four friends on the same roll.
+</p>
+
+<p align="center">
+  <a href="https://genius-star.vercel.app"><img src="https://img.shields.io/badge/play-genius--star.vercel.app-facc15?style=for-the-badge&labelColor=000" alt="Play"></a>
+  <img src="https://img.shields.io/badge/puzzles-165%2C888%20verified-000?style=for-the-badge&labelColor=facc15" alt="165,888 puzzles verified">
+  <img src="https://img.shields.io/badge/build-none%20needed-000?style=for-the-badge&labelColor=a3e636" alt="No build step">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-000?style=for-the-badge&labelColor=88aaee" alt="MIT"></a>
+</p>
+
+---
+
+The Genius Star is the star-shaped sibling of The Genius Square, made by The Happy Puzzle Company.
+This is a browser version of it that keeps everything that makes the physical game tick:
+
+- the 48-triangle board, numbered 1–48 exactly like the plastic one;
+- the seven original dice (four six-sided, three eight-sided) with their real face numbers;
+- the eleven pieces, including the two light-blue halves that join into the **Golden Star**.
+
+Every one of the 165,888 rolls the dice can produce has been solved by the bundled solver: all of them
+have a solution, and 97,422 (58.7 %) can be finished with the Golden Star whole. Those are the same
+numbers printed on the box.
+
+**[Play it here](https://genius-star.vercel.app)** — nothing to install, works on phones.
+
+## Features
+
+**Solo.** Roll, drag, rotate, race the timer. Hints that respect the pieces you have already placed,
+a full solution when you give up, a "is the Golden Star possible?" check, a daily puzzle, custom blocker
+layouts, and a link for every puzzle so a friend can try the same roll.
+
+**Together.** Create a lobby, share the five-letter code, and up to five players get the same roll at
+the same moment. The lobby shows who is still solving and who has finished; the fastest hint-free
+finisher wins the round, and a Golden Star finish counts double. If the host leaves, the next player
+takes over.
+
+**Your record.** Sign in with an email and password to keep best times, Golden Star counts and a
+full game history (solo and lobby rounds with your finishing position) on your profile. Or stay a
+guest: everything is kept in your browser.
+
+**One screen.** On a desktop the board, the pieces, the dice and the lobby fit the window without
+scrolling. On a phone the board takes the full width and you drag with a finger.
+
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshot-desktop.png" width="720" alt="Desktop layout: black star board on the left, Play / Lobby / Records panel on the right">
+</p>
+<p align="center">
+  <img src="docs/screenshot-phone.png" width="260" alt="Phone layout: full-width board with the pieces underneath">
+</p>
 
 ## How to play
 
-1. **Roll** — press *Roll the dice*. Blockers appear on the seven numbered triangles.
-2. **Fill** — drag pieces from the tray onto the star. A piece snaps into place when every triangle
-   under it is free. Drag a piece off the board, or tap it, to send it back to the tray.
-3. **Rotate / flip** — `R` rotates clockwise, `Shift+R` anticlockwise, `F` flips; the scroll wheel rotates too,
-   even while holding a piece. On touch screens tap a selected tray piece to rotate it, or use ⟲ ⟳ ⇅.
-4. **Win** — the timer stops when all eleven pieces are down.
+1. **Roll the dice.** A white star blocker lands on each of the seven numbered triangles.
+2. **Fill the rest.** Drag pieces from the tray onto the star; a piece snaps in when every triangle
+   under it is free. Drag it off (or tap it) to send it back.
+3. **Turn pieces** with `Space` or `R` (hold `Shift` for the other way) and flip with `F` — all of
+   this works while you are holding a piece, and the scroll wheel rotates too. On a phone, tap a
+   selected piece to rotate it.
+4. **Finish the star.** The timer stops when the last piece is down. If the two light-blue halves
+   form the hexagon with the golden star, that is a double win.
 
-### The Golden Star
+Other keys: `H` hint, `N` new roll, `Esc` drop the piece you are holding, `?` help.
 
-The two light-blue halves carry half a golden star each. Join them into a hexagon inside your solution to complete
-the **Golden Star** for a *double win*. Only about 58 % of rolls (97,422 of 165,888) allow it. *★ Golden Star?*
-tells you whether the current roll can, if you would rather not gamble.
+## How it works
 
-### Playing together
+Everything is plain HTML, CSS and JavaScript — no framework, no bundler, no npm dependencies.
 
-*Play together → Create lobby* gives you a 5-letter code (and a link). Up to five players join with a nickname.
-The host presses *Start round*: everyone gets the same roll at the same moment and solves on their own board while
-the lobby shows who is still solving and who has finished. The fastest hint-free finisher wins the round — one point,
-or two with the Golden Star. Hints and solutions are switched off inside lobbies. If the host leaves, the longest-present
-player becomes host automatically. Lobby results are written to each player's history with their finishing position.
+- **Board and pieces** live on a triangular grid. Each triangle is addressed by a row and a column;
+  rotations and reflections are integer maps on tri-coordinates, so the twelve orientations of every
+  piece are computed once at start-up ([`js/geometry.js`](js/geometry.js), [`js/pieces.js`](js/pieces.js)).
+- **The solver** ([`js/solver.js`](js/solver.js)) treats a puzzle as an exact-cover problem: all legal
+  placements are pre-computed and a backtracking search always fills the emptiest cell first. A puzzle
+  solves in a few milliseconds, which is what powers hints, the solution button and the Golden Star check.
+  `npm run verify` runs the whole 165,888-roll check (about four minutes).
+- **Multiplayer** uses Supabase Realtime: a lobby is a channel named by its code, players publish a
+  tiny presence state (nickname, pieces left, finish time) and the host broadcasts the roll of each
+  round. Nothing about lobbies is stored on a server.
+- **Accounts and history** use Supabase Auth and one Postgres table with row-level security, so a
+  player can only ever read or write their own rows ([`supabase/schema.sql`](supabase/schema.sql)).
+- **Design** follows the [neobrutalism](https://www.neobrutalism.dev/) system: 2 px black borders,
+  hard 4 px shadows, 5 px corners, DM Sans, the official yellow accent. The page ships with a strict
+  Content-Security-Policy and self-hosts its one font and one library.
 
-### Other features
+Without a Supabase project the same code runs in *local mode*: guest play, history in the browser,
+and lobbies that work between tabs of one browser — handy for development.
 
-- **Hint** places one piece from a solution that agrees with what you have already placed; **Solution** shows a full one.
-- **Enter a roll** (numbers from real dice), **Daily star** (same puzzle for everyone each day), **Custom blockers**.
-- **Copy link** — every solo puzzle has a URL such as `#roll=4.10.15.18.28.33.37`; lobbies use `#lobby=ABCDE`.
-- An unfinished solo puzzle is restored when you come back.
+## Run it locally
 
-Keyboard: `R` / `Shift+R` rotate, `F` flip, `H` hint, `N` new roll, `Esc` drop the held piece, `?` help.
+```bash
+git clone https://github.com/alishan-alv/genius-star.git
+cd genius-star
+npm start          # http://localhost:8765  (or just open index.html)
+```
 
-## Deploying (Vercel + Supabase)
+`npm run verify` checks all 165,888 rolls; `npm run check` syntax-checks the scripts.
 
-The site is static; accounts, history and online lobbies use a free [Supabase](https://supabase.com) project.
-Without the two environment variables below the deployed site still works in **local mode** (guest play; lobbies
-only between tabs of one browser).
+## Deploy your own
 
-1. **Supabase**
-   1. Create a project, open *SQL Editor*, paste the contents of [`supabase/schema.sql`](supabase/schema.sql) and run it.
-   2. *Authentication → Providers → Email*: keep "Confirm email" on (or turn it off for a quick demo).
-      *Authentication → URL configuration*: set the Site URL to your Vercel URL.
-   3. *Project Settings → API*: copy the **Project URL** and the **anon / publishable key**.
-2. **Vercel**
-   1. Import this GitHub repository (Framework preset: *Other*; no build command, output directory `.`).
-   2. Add the environment variables `SUPABASE_URL` and `SUPABASE_ANON_KEY` (Production + Preview), then deploy.
-   3. The `/api/config` function hands those public values to the page; `vercel.json` adds the security headers.
+1. **Supabase** (free tier is enough): create a project, run [`supabase/schema.sql`](supabase/schema.sql)
+   in the SQL editor, set *Authentication → URL configuration → Site URL* to your domain, and copy the
+   Project URL and the anon/publishable key from *Project Settings → API*.
+2. **Vercel**: import the repository (framework *Other*, no build command), add the environment
+   variables `SUPABASE_URL` and `SUPABASE_ANON_KEY`, deploy. [`api/config.js`](api/config.js) hands those
+   two public values to the page; [`vercel.json`](vercel.json) adds the security headers.
 
-Local development with the online backend: copy `config.local.example.json` to `config.local.json`, fill in the two
-values (this file is git-ignored) and run `npm start`.
-
-## The real game, faithfully
-
-- **Board** — 48 triangles in a six-pointed star, numbered 1–48 row by row from the top, exactly as printed.
-- **Dice** — four six-sided and three eight-sided dice with the original face numbers
-  (`1 5 15 34 44 48`, `2 4 7 8 9 11 16 17`, `10 27 31`, `12 13 23 24 32 33 41 42`, `18 22 39`,
-  `19 20 21 28 29 30`, `25 26 36 37 38 40 45 47`), giving the advertised 165,888 puzzles.
-- **Pieces** — the eleven original polyiamonds: blue 1-triangle, yellow diamond, pink parallelogram,
-  red bar, lime hook, orange chevron, green cup, purple triangle, brown kite and the two light-blue
-  Golden Star halves (41 triangles in total).
-- `npm run verify` solves every one of the 165,888 rolls (about four minutes): all are solvable and 97,422 admit
-  the Golden Star, matching the published analysis of the physical game.
+For local development against the real backend, copy `config.local.example.json` to
+`config.local.json` and fill in the two values (the file is git-ignored).
 
 ## Project layout
 
 ```
-index.html                 page markup (strict Content-Security-Policy)
-css/style.css              styling (dark theme, phone layout)
-js/geometry.js             triangular grid, star board, rotations/reflections, outlines
-js/pieces.js               the eleven pieces (shapes and colours)
+index.html                 the page
+css/style.css              styling, desktop one-screen grid, phone layout
+js/geometry.js             triangular grid, star board, transforms, outlines
+js/pieces.js               the eleven pieces
 js/dice.js                 the seven dice, daily seed
-js/solver.js               exact-cover solver (hints, solutions, Golden Star check)
-js/backend.js              Supabase adapter + local mode (history, auth, lobby transport)
-js/game.js                 board rendering, drag & drop, timer, records, shared widgets
+js/solver.js               exact-cover solver
+js/backend.js              Supabase adapter + local mode
+js/game.js                 board, drag & drop, timer, records, shared widgets
 js/account.js              sign in / sign up, nickname, profile & history
-js/lobby.js                multiplayer lobbies (presence, rounds, scoreboard)
-api/config.js              Vercel function exposing the public Supabase config
-supabase/schema.sql        tables, row-level security, sign-up trigger
-vendor/supabase.js         supabase-js 2.115.0 (UMD, self-hosted)
-tools/serve.js             local static server (npm start)
-tools/verify-all-rolls.js  exhaustive solvability check (npm run verify)
-vercel.json                security headers and caching
-AUDIT.md                   security & code audit notes
+js/lobby.js                lobbies: presence, rounds, scoreboard
+api/config.js              Vercel function exposing the public config
+supabase/schema.sql        tables, RLS policies, sign-up trigger
+tools/                     local server, exhaustive verifier, README hero renderer
+docs/                      images for this README
 ```
 
-The Genius Star is a trademark of The Happy Puzzle Company; this is an unofficial fan project.
+Security notes and known limitations are in [AUDIT.md](AUDIT.md).
+
+## Credits
+
+The Genius Star is a trademark of The Happy Puzzle Company; this is an unofficial fan project and is
+not affiliated with them. The board numbering, dice faces and piece shapes were cross-checked against
+the printed game and against independent solvers by
+[John Rudge](https://github.com/johnrudge/genius_star), [Oleksandr Manzyuk](https://github.com/manzyuk/genius-star)
+and [Benjamin Turner](https://github.com/turnerbenjamin/genius-star-solver).
+Font: DM Sans (SIL OFL). Code: MIT.

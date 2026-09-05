@@ -885,7 +885,7 @@
         '<p><b>Roll</b> the seven dice. A white star blocker is placed on each numbered triangle.</p>' +
         '<p><b>Fill</b> every remaining triangle with the eleven coloured pieces. Drag a piece from the tray onto the star; ' +
         'it snaps into place when it fits. Drag a piece off the board (or tap it) to return it to the tray.</p>' +
-        '<ul><li><b>R</b> / ⟳ rotates, <b>Shift+R</b> / ⟲ rotates the other way, <b>F</b> / ⇅ flips a piece. The scroll wheel rotates too — even mid-drag. ' +
+        '<ul><li><b>Space</b> or <b>R</b> / ⟳ rotates (Shift for the other way), <b>F</b> / ⇅ flips a piece — all of them work while you are dragging, and so does the scroll wheel. ' +
         'On a phone, tap a selected piece to rotate it.</li>' +
         '<li><b>H</b> gives a hint, <b>N</b> rolls a new puzzle, <b>Esc</b> drops the piece you are holding.</li></ul>' +
         '<p><b>The Golden Star:</b> the two light-blue halves join into a hexagon that shows a golden star. Finish the puzzle with the ' +
@@ -967,6 +967,12 @@
       if (e.ctrlKey || e.metaKey || e.altKey || /INPUT|SELECT|TEXTAREA/.test(tag || '')) return;
       if (modalOpen()) { if (e.key === 'Escape') closeModal(); return; }
       switch (e.key) {
+        case ' ':
+          // Space spins the piece you are holding (or the selected tray piece).
+          if (state.drag) rotateActive(e.shiftKey ? 'ccw' : 'cw');
+          else if (state.selected && !state.placed[state.selected] && tag !== 'BUTTON') rotateActive(e.shiftKey ? 'ccw' : 'cw');
+          else return;
+          break;
         case 'r': rotateActive('cw'); break;
         case 'R': case 'e': case 'E': rotateActive('ccw'); break;
         case 'f': case 'F': rotateActive('flip'); break;
