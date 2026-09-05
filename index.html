@@ -24,6 +24,7 @@
     </div>
     <div class="top-actions">
       <button id="user-chip" type="button" class="chip" title="Account"><span class="chip-icon">👤</span><span class="chip-name">…</span></button>
+      <a id="btn-coffee" class="btn coffee icon-btn support-link" href="https://buymeacoffee.com/al1shan" target="_blank" rel="noopener noreferrer" title="Buy me a coffee" aria-label="Buy me a coffee">☕</a>
       <button id="btn-help" type="button" class="btn-help" title="How to play" aria-label="How to play">?</button>
     </div>
   </header>
@@ -102,11 +103,17 @@
             <button id="btn-account" type="button">👤 Account</button>
           </div>
         </div>
+        <div class="pane-section">
+          <div class="section-head"><span>Support</span></div>
+          <p class="tiny support-pitch">Free, no ads, no trackers, one person. A coffee keeps the stars coming.</p>
+          <a class="btn coffee support-link support-wide" href="https://buymeacoffee.com/al1shan" target="_blank" rel="noopener noreferrer">☕ Buy me a coffee</a>
+        </div>
       </div>
     </aside>
   </main>
 
   <svg id="drag-layer" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
+  <div id="support-root"></div>
   <div id="modal-root" class="hidden"></div>
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 
@@ -120,5 +127,6 @@
   <script src="js/game.js"></script>
   <script src="js/account.js"></script>
   <script src="js/lobby.js"></script>
+  <script src="js/support.js"></script>
 </body>
 </html>

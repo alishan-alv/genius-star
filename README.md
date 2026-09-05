@@ -14,6 +14,7 @@
   <img src="https://img.shields.io/badge/puzzles-165%2C888%20verified-000?style=for-the-badge&labelColor=facc15" alt="165,888 puzzles verified">
   <img src="https://img.shields.io/badge/build-none%20needed-000?style=for-the-badge&labelColor=a3e636" alt="No build step">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-000?style=for-the-badge&labelColor=88aaee" alt="MIT"></a>
+  <a href="https://buymeacoffee.com/al1shan"><img src="https://img.shields.io/badge/buy%20me%20a%20coffee-al1shan-000?style=for-the-badge&labelColor=FFDD00&logo=buymeacoffee&logoColor=000" alt="Buy me a coffee"></a>
 </p>
 
 ---
@@ -136,6 +137,17 @@ docs/                      images for this README
 ```
 
 Security notes and known limitations are in [AUDIT.md](AUDIT.md).
+
+## Support
+
+The game is free, has no ads, no trackers and no paywalled hints, and it will stay that way.
+It is built and maintained by one person in his spare time.
+
+If it made a break better, you can [buy me a coffee](https://buymeacoffee.com/al1shan) ☕ —
+it is the whole business model. Starring the repository or telling a friend who likes puzzles
+helps just as much.
+
+<a href="https://buymeacoffee.com/al1shan"><img src="https://img.shields.io/badge/☕%20Buy%20me%20a%20coffee-FFDD00?style=for-the-badge&labelColor=000&color=FFDD00" alt="Buy me a coffee" height="42"></a>
 
 ## Credits
 

@@ -117,7 +117,12 @@
     if (first) first.focus();
     return box;
   }
-  function closeModal() { els.modal.classList.add('hidden'); els.modal.innerHTML = ''; }
+  function closeModal() {
+    const was = modalOpen();
+    els.modal.classList.add('hidden');
+    els.modal.innerHTML = '';
+    if (was) emit('modal-closed');
+  }
   function modalOpen() { return !els.modal.classList.contains('hidden'); }
 
   // Side-panel tabs (Play / Lobby / Records).
@@ -893,6 +898,8 @@
         '<p><b>Play together:</b> create a lobby, share the code, and up to five players race on identical rolls. ' +
         'The first to finish wins the round (two points with the Golden Star). Hints are off in lobbies.</p>' +
         '<p><b>Accounts:</b> sign in to keep your records and game history on your profile; guests keep them in this browser.</p>' +
+        '<p>This is a free one-person project with no ads and no trackers. If you enjoy it, you can ' +
+        '<a class="support-link" href="https://buymeacoffee.com/al1shan" target="_blank" rel="noopener noreferrer">buy me a coffee</a> ☕</p>' +
         '<p class="muted">The Genius Star is a game by The Happy Puzzle Company. This is an unofficial fan-made web version.</p>',
     });
   }
