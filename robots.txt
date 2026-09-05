@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://genius-star.vercel.app/sitemap.xml

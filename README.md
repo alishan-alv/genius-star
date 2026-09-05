@@ -133,8 +133,11 @@ js/lobby.js                lobbies: presence, rounds, scoreboard
 js/support.js              the occasional, dismissible "buy me a coffee" card
 api/config.js              Vercel function exposing the public config
 supabase/schema.sql        tables, RLS policies, sign-up trigger
-tools/                     local server, exhaustive verifier, README hero renderer
+tools/                     local server, exhaustive verifier, hero + brand card sources
 docs/                      images for this README
+robots.txt sitemap.xml     search engine basics
+site.webmanifest icons/    installable web app metadata
+og.png                     social preview image (generated from tools/brand-cards.html)
 ```
 
 Security notes and known limitations are in [AUDIT.md](AUDIT.md).

@@ -288,8 +288,8 @@ table.history tr.dim td { opacity: .5; }
 
 /* ---------- one-screen desktop ---------- */
 @media (min-width: 1024px) and (min-height: 600px) {
-  html, body { height: 100%; overflow: hidden; }
-  body { display: grid; grid-template-rows: auto minmax(0, 1fr); height: 100dvh; min-height: 0; }
+  /* The game occupies exactly one screen; the text below it is reached by scrolling. */
+  .app { display: grid; grid-template-rows: auto minmax(0, 1fr); height: 100dvh; }
   .stage { height: 100%; min-height: 0; }
   .board-card { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; min-height: 0; }
   .board-card .edit-bar.hidden { display: none; }
@@ -384,4 +384,36 @@ a.btn.support-wide { width: 100%; }
   #btn-coffee { display: none; }
   .support-card { right: 10px; left: 10px; bottom: 10px; width: auto; padding: 14px; }
   .support-title { font-size: 16px; }
+}
+
+/* ---------- page text below the game (also what search engines read) ---------- */
+html { scroll-behavior: smooth; }
+h1.brand-title { margin: 0; }
+.about { padding: 30px 16px 6px; }
+.about-inner {
+  max-width: 900px; margin: 0 auto; background: var(--bw);
+  border: 2px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 26px 28px;
+}
+.about h2 { font-size: 22px; font-weight: 900; margin: 28px 0 10px; }
+.about h2:first-child { margin-top: 0; }
+.about h3 { font-size: 15px; font-weight: 800; margin: 18px 0 4px; }
+.about p { font-size: 15px; line-height: 1.6; margin: 0 0 10px; }
+.about-list { font-size: 15px; line-height: 1.6; padding-left: 22px; margin: 0 0 10px; }
+.about-list li { margin: 7px 0; }
+.about a, .site-foot a { color: inherit; font-weight: 700; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 2px; }
+.about a:hover, .site-foot a:hover { background: var(--main); }
+.table-scroll { overflow-x: auto; border-radius: var(--radius); }
+.about-table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 420px; }
+.about-table th, .about-table td { border: 2px solid var(--border); padding: 7px 10px; text-align: left; }
+.about-table th { background: var(--main); font-weight: 800; }
+.about-table td:first-child, .about-table td:nth-child(2) { text-align: center; font-weight: 700; width: 1%; white-space: nowrap; }
+.site-foot { padding: 18px 16px 30px; }
+.foot-inner { background: none; border: none; box-shadow: none; padding: 0; text-align: center; }
+.site-foot p { margin: 6px 0; font-size: 14px; }
+@media (max-width: 560px) {
+  .about { padding: 16px 10px 4px; }
+  .about-inner { padding: 18px 16px; }
+  .about h2 { font-size: 19px; }
+  .about p, .about-list { font-size: 14px; }
+  .site-foot { padding: 12px 10px 24px; }
 }

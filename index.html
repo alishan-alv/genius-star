@@ -7,110 +7,282 @@
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#dfe5f2">
   <meta name="mobile-web-app-capable" content="yes">
-  <title>The Genius Star</title>
-  <meta name="description" content="Web version of The Genius Star puzzle game: roll seven dice, place the blockers and fill the star with eleven pieces. Play solo or race friends in a lobby.">
+  <meta name="apple-mobile-web-app-title" content="Genius Star">
+
+  <title>Play The Genius Star Online — Free Star Puzzle Game</title>
+  <meta name="description" content="Play The Genius Star puzzle in your browser — free, no ads. Roll the seven dice, fill the star with eleven pieces, chase the Golden Star, race up to four friends.">
+  <link rel="canonical" href="https://genius-star.vercel.app/">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <meta name="author" content="alishan-alv">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="The Genius Star">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:url" content="https://genius-star.vercel.app/">
+  <meta property="og:title" content="Play The Genius Star Online — Free Star Puzzle Game">
+  <meta property="og:description" content="Roll the seven dice, fill the star with eleven pieces and chase the Golden Star. 165,888 puzzles, solo or with up to four friends. Free, no ads.">
+  <meta property="og:image" content="https://genius-star.vercel.app/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="A solved Genius Star board with the Golden Star and the seven dice">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Play The Genius Star Online — Free Star Puzzle Game">
+  <meta name="twitter:description" content="Roll the seven dice, fill the star with eleven pieces and chase the Golden Star. 165,888 puzzles, solo or with friends. Free, no ads.">
+  <meta name="twitter:image" content="https://genius-star.vercel.app/og.png">
+
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%AD%90%3C/text%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="/icons/icon-180.png">
+  <link rel="manifest" href="/site.webmanifest">
   <link rel="preload" href="fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": ["VideoGame", "WebApplication"],
+        "@id": "https://genius-star.vercel.app/#game",
+        "name": "The Genius Star (web edition)",
+        "alternateName": "Genius Star online",
+        "url": "https://genius-star.vercel.app/",
+        "image": "https://genius-star.vercel.app/og.png",
+        "description": "A free browser version of The Genius Star tiling puzzle: roll seven dice, block seven triangles of the star-shaped board and fill the rest with eleven pieces. 165,888 puzzles, hints, the Golden Star bonus and lobbies for up to five players.",
+        "applicationCategory": "GameApplication",
+        "genre": ["Puzzle", "Logic game", "Tiling puzzle"],
+        "gamePlatform": "Web browser",
+        "playMode": ["SinglePlayer", "MultiPlayer"],
+        "numberOfPlayers": { "@type": "QuantitativeValue", "minValue": 1, "maxValue": 5 },
+        "operatingSystem": "Any modern web browser",
+        "browserRequirements": "Requires JavaScript",
+        "inLanguage": "en",
+        "isAccessibleForFree": true,
+        "isFamilyFriendly": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "availability": "https://schema.org/InStock" },
+        "author": { "@type": "Person", "name": "alishan-alv", "url": "https://github.com/alishan-alv" },
+        "codeRepository": "https://github.com/alishan-alv/genius-star",
+        "license": "https://github.com/alishan-alv/genius-star/blob/main/LICENSE"
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://genius-star.vercel.app/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is it free?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. There are no ads, no trackers, no paid hints and no sign-up wall. One person builds it in his spare time, and a coffee is the whole business model." }
+          },
+          {
+            "@type": "Question",
+            "name": "How many puzzles are there?",
+            "acceptedAnswer": { "@type": "Answer", "text": "165,888 — every combination the seven dice can roll. A solver in this repository has checked all of them: each one can be finished with the eleven pieces." }
+          },
+          {
+            "@type": "Question",
+            "name": "How often is the Golden Star possible?",
+            "acceptedAnswer": { "@type": "Answer", "text": "In 97,422 of the 165,888 rolls, which is 58.7 per cent. The Golden Star button tells you whether the roll in front of you is one of them." }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I play with friends?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Create a lobby, share the five-letter code, and up to five players get the same roll at the same moment. The fastest finisher wins the round and the Golden Star counts double." }
+          },
+          {
+            "@type": "Question",
+            "name": "Does it work on a phone?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. The board takes the full width, you drag pieces with a finger and tap a selected piece to rotate it. Nothing to install." }
+          },
+          {
+            "@type": "Question",
+            "name": "Do I need an account?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. Guests can play everything, and their times stay in the browser. An account keeps your records and game history across devices." }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
-  <header class="top">
-    <div class="brand">
-      <span class="brand-star" aria-hidden="true">★</span>
-      <div>
-        <div class="brand-title">THE GENIUS STAR</div>
-        <div class="brand-sub">165,888 puzzles · <span id="backend-tag">…</span></div>
+  <div class="app" id="top">
+    <header class="top">
+      <div class="brand">
+        <span class="brand-star" aria-hidden="true">★</span>
+        <div>
+          <h1 class="brand-title">THE GENIUS STAR</h1>
+          <div class="brand-sub">165,888 puzzles · <span id="backend-tag">…</span></div>
+        </div>
       </div>
-    </div>
-    <div class="top-actions">
-      <button id="user-chip" type="button" class="chip" title="Account"><span class="chip-icon">👤</span><span class="chip-name">…</span></button>
-      <a id="btn-coffee" class="btn coffee icon-btn support-link" href="https://buymeacoffee.com/al1shan" target="_blank" rel="noopener noreferrer" title="Buy me a coffee" aria-label="Buy me a coffee">☕</a>
-      <button id="btn-help" type="button" class="btn-help" title="How to play" aria-label="How to play">?</button>
-    </div>
-  </header>
+      <div class="top-actions">
+        <button id="user-chip" type="button" class="chip" title="Account"><span class="chip-icon">👤</span><span class="chip-name">…</span></button>
+        <a id="btn-coffee" class="btn coffee icon-btn support-link" href="https://buymeacoffee.com/al1shan" target="_blank" rel="noopener noreferrer" title="Buy me a coffee" aria-label="Buy me a coffee">☕</a>
+        <button id="btn-help" type="button" class="btn-help" title="How to play" aria-label="How to play">?</button>
+      </div>
+    </header>
 
-  <main class="stage">
-    <section class="card board-card">
-      <div class="status">
-        <div class="timer" id="timer" aria-live="off">0:00.0</div>
-        <div class="status-text" id="status">Roll the dice to start</div>
-        <div class="puzzle-code" id="puzzle-code"></div>
-      </div>
-      <div class="board-wrap">
-        <svg id="board" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Genius Star board"></svg>
-      </div>
-      <div class="edit-bar hidden" id="edit-bar">
-        <span>Tap cells to place seven blockers · <strong id="edit-count">0/7</strong></span>
-        <span class="btn-row">
-          <button id="btn-edit-done" type="button" class="primary small">Start puzzle</button>
-          <button id="btn-edit-cancel" type="button" class="small">Cancel</button>
-        </span>
-      </div>
-    </section>
+    <main class="stage">
+      <section class="card board-card">
+        <div class="status">
+          <div class="timer" id="timer" aria-live="off">0:00.0</div>
+          <div class="status-text" id="status">Roll the dice to start</div>
+          <div class="puzzle-code" id="puzzle-code"></div>
+        </div>
+        <div class="board-wrap">
+          <svg id="board" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Genius Star board"></svg>
+        </div>
+        <div class="edit-bar hidden" id="edit-bar">
+          <span>Tap cells to place seven blockers · <strong id="edit-count">0/7</strong></span>
+          <span class="btn-row">
+            <button id="btn-edit-done" type="button" class="primary small">Start puzzle</button>
+            <button id="btn-edit-cancel" type="button" class="small">Cancel</button>
+          </span>
+        </div>
+      </section>
 
-    <aside class="card panel">
-      <nav class="tabs" role="tablist" aria-label="Side panel">
-        <button type="button" class="tab active" data-pane="play" role="tab" aria-selected="true">Play</button>
-        <button type="button" class="tab" data-pane="lobby" role="tab" aria-selected="false">Lobby <span id="lobby-badge" class="tab-badge hidden"></span></button>
-        <button type="button" class="tab" data-pane="records" role="tab" aria-selected="false">Records</button>
-      </nav>
+      <aside class="card panel">
+        <nav class="tabs" role="tablist" aria-label="Side panel">
+          <button type="button" class="tab active" data-pane="play" role="tab" aria-selected="true">Play</button>
+          <button type="button" class="tab" data-pane="lobby" role="tab" aria-selected="false">Lobby <span id="lobby-badge" class="tab-badge hidden"></span></button>
+          <button type="button" class="tab" data-pane="records" role="tab" aria-selected="false">Records</button>
+        </nav>
 
-      <div class="pane" id="pane-play" role="tabpanel">
-        <div class="pane-section">
-          <div class="section-head">
-            <span>Pieces</span><span id="pieces-left" class="pill"></span><span class="grow"></span>
-            <div class="piece-controls">
-              <button id="btn-ccw" type="button" class="icon" title="Rotate anticlockwise (Shift+R)" aria-label="Rotate anticlockwise">⟲</button>
-              <button id="btn-cw" type="button" class="icon" title="Rotate clockwise (R)" aria-label="Rotate clockwise">⟳</button>
-              <button id="btn-flip" type="button" class="icon" title="Flip (F)" aria-label="Flip">⇅</button>
+        <div class="pane" id="pane-play" role="tabpanel">
+          <div class="pane-section">
+            <div class="section-head">
+              <span>Pieces</span><span id="pieces-left" class="pill"></span><span class="grow"></span>
+              <div class="piece-controls">
+                <button id="btn-ccw" type="button" class="icon" title="Rotate anticlockwise (Shift+R)" aria-label="Rotate anticlockwise">⟲</button>
+                <button id="btn-cw" type="button" class="icon" title="Rotate clockwise (R)" aria-label="Rotate clockwise">⟳</button>
+                <button id="btn-flip" type="button" class="icon" title="Flip (F)" aria-label="Flip">⇅</button>
+              </div>
+            </div>
+            <div class="tray" id="tray"></div>
+            <div class="btn-row actions">
+              <button id="btn-hint" type="button" title="Place one piece from a solution (H)">💡 Hint</button>
+              <button id="btn-golden" type="button" title="Is the Golden Star possible for this roll?">★ Golden?</button>
+              <button id="btn-solution" type="button" title="Show a full solution">👁 Solution</button>
+              <button id="btn-clear" type="button" title="Return all pieces to the tray">↺ Clear</button>
             </div>
           </div>
-          <div class="tray" id="tray"></div>
-          <div class="btn-row actions">
-            <button id="btn-hint" type="button" title="Place one piece from a solution (H)">💡 Hint</button>
-            <button id="btn-golden" type="button" title="Is the Golden Star possible for this roll?">★ Golden?</button>
-            <button id="btn-solution" type="button" title="Show a full solution">👁 Solution</button>
-            <button id="btn-clear" type="button" title="Return all pieces to the tray">↺ Clear</button>
+          <div class="pane-section">
+            <div class="section-head"><span>Dice</span></div>
+            <div class="dice" id="dice"></div>
+            <div class="btn-row">
+              <button id="btn-roll" type="button" class="primary grow">🎲 Roll the dice</button>
+            </div>
+            <div class="btn-row secondary-row">
+              <button id="btn-enter" type="button" title="Type in a roll from your real dice">Enter a roll</button>
+              <button id="btn-daily" type="button" title="The same puzzle for everyone today">Daily star</button>
+              <button id="btn-custom" type="button" title="Place the seven blockers yourself">Custom blockers</button>
+            </div>
           </div>
         </div>
-        <div class="pane-section">
-          <div class="section-head"><span>Dice</span></div>
-          <div class="dice" id="dice"></div>
-          <div class="btn-row">
-            <button id="btn-roll" type="button" class="primary grow">🎲 Roll the dice</button>
-          </div>
-          <div class="btn-row secondary-row">
-            <button id="btn-enter" type="button" title="Type in a roll from your real dice">Enter a roll</button>
-            <button id="btn-daily" type="button" title="The same puzzle for everyone today">Daily star</button>
-            <button id="btn-custom" type="button" title="Place the seven blockers yourself">Custom blockers</button>
+
+        <div class="pane hidden" id="pane-lobby" role="tabpanel">
+          <div class="pane-section">
+            <div class="section-head"><span>Play together</span><span class="grow"></span><span id="lobby-mode-tag" class="tiny"></span></div>
+            <div id="lobby-body"></div>
           </div>
         </div>
+
+        <div class="pane hidden" id="pane-records" role="tabpanel">
+          <div class="pane-section">
+            <div class="section-head"><span>Records</span><span class="grow"></span><span class="tiny">of <span id="records-owner">this browser</span></span></div>
+            <div id="records" class="records"></div>
+            <div class="btn-row actions">
+              <button id="btn-profile" type="button">📜 Profile &amp; history</button>
+              <button id="btn-account" type="button">👤 Account</button>
+            </div>
+          </div>
+          <div class="pane-section">
+            <div class="section-head"><span>Support</span></div>
+            <p class="tiny support-pitch">Free, no ads, no trackers, one person. A coffee keeps the stars coming.</p>
+            <a class="btn coffee support-link support-wide" href="https://buymeacoffee.com/al1shan" target="_blank" rel="noopener noreferrer">☕ Buy me a coffee</a>
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <section class="about" id="about">
+    <div class="about-inner">
+      <h2>Play The Genius Star online</h2>
+      <p>
+        The Genius Star is a tiling puzzle on a six-pointed star: seven dice decide which triangles are blocked,
+        and eleven wooden shapes have to cover everything that is left. This page is a free browser version of it.
+        The board is numbered 1 to 48 exactly like the printed one, the dice carry the original face numbers, and the
+        eleven pieces are the real shapes — including the two light-blue halves that join into the Golden Star.
+      </p>
+      <p>
+        Nothing to install and nothing to pay for. Play a quick puzzle on your phone, take a hint when you are stuck,
+        reveal a full solution when you give up, or open a lobby and race four friends on identical rolls.
+      </p>
+
+      <h2>The rules in four steps</h2>
+      <ol class="about-list">
+        <li><b>Roll the seven dice.</b> A white star blocker lands on each of the seven numbered triangles they show.</li>
+        <li><b>Fill every other triangle</b> with the eleven coloured pieces. A piece snaps into place when the triangles under it are free.</li>
+        <li><b>Turn pieces</b> with Space or R, hold Shift to turn the other way, press F to flip. On a phone, tap a selected piece.</li>
+        <li><b>Beat the clock.</b> The timer stops when the last piece is down — and if the two light-blue halves form the hexagon, that is a Golden Star, a double win.</li>
+      </ol>
+
+      <h2>The seven dice</h2>
+      <p>
+        Four six-sided dice and three eight-sided ones, with the numbers of the original game. Together they produce
+        <b>165,888</b> different puzzles, and cells 3, 6, 14, 35, 43 and 46 are never blocked.
+      </p>
+      <div class="table-scroll">
+        <table class="about-table">
+          <thead><tr><th>Die</th><th>Sides</th><th>Numbers</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>6</td><td>1 · 5 · 15 · 34 · 44 · 48</td></tr>
+            <tr><td>2</td><td>8</td><td>2 · 4 · 7 · 8 · 9 · 11 · 16 · 17</td></tr>
+            <tr><td>3</td><td>6</td><td>10 · 27 · 31 (each twice)</td></tr>
+            <tr><td>4</td><td>8</td><td>12 · 13 · 23 · 24 · 32 · 33 · 41 · 42</td></tr>
+            <tr><td>5</td><td>6</td><td>18 · 22 · 39 (each twice)</td></tr>
+            <tr><td>6</td><td>6</td><td>19 · 20 · 21 · 28 · 29 · 30</td></tr>
+            <tr><td>7</td><td>8</td><td>25 · 26 · 36 · 37 · 38 · 40 · 45 · 47</td></tr>
+          </tbody>
+        </table>
       </div>
 
-      <div class="pane hidden" id="pane-lobby" role="tabpanel">
-        <div class="pane-section">
-          <div class="section-head"><span>Play together</span><span class="grow"></span><span id="lobby-mode-tag" class="tiny"></span></div>
-          <div id="lobby-body"></div>
-        </div>
-      </div>
+      <h2>The Golden Star</h2>
+      <p>
+        The two light-blue pieces each carry half of a golden star. Put them together as a hexagon inside your solution
+        and you finish with the Golden Star whole, which counts as a double win. It is a gamble: a solver run over every
+        possible roll shows that <b>97,422 of the 165,888 puzzles</b> — 58.7 per cent — have a solution with the hexagon
+        in one piece. The <i>Golden?</i> button checks the roll in front of you if you would rather not guess.
+      </p>
 
-      <div class="pane hidden" id="pane-records" role="tabpanel">
-        <div class="pane-section">
-          <div class="section-head"><span>Records</span><span class="grow"></span><span class="tiny">of <span id="records-owner">this browser</span></span></div>
-          <div id="records" class="records"></div>
-          <div class="btn-row actions">
-            <button id="btn-profile" type="button">📜 Profile &amp; history</button>
-            <button id="btn-account" type="button">👤 Account</button>
-          </div>
-        </div>
-        <div class="pane-section">
-          <div class="section-head"><span>Support</span></div>
-          <p class="tiny support-pitch">Free, no ads, no trackers, one person. A coffee keeps the stars coming.</p>
-          <a class="btn coffee support-link support-wide" href="https://buymeacoffee.com/al1shan" target="_blank" rel="noopener noreferrer">☕ Buy me a coffee</a>
-        </div>
-      </div>
-    </aside>
-  </main>
+      <h2>Questions</h2>
+      <h3>Is it free?</h3>
+      <p>Yes. There are no ads, no trackers, no paid hints and no sign-up wall. One person builds it in his spare time, and a coffee is the whole business model.</p>
+      <h3>How many puzzles are there?</h3>
+      <p>165,888 — every combination the seven dice can roll. A solver in this repository has checked all of them: each one can be finished with the eleven pieces.</p>
+      <h3>How often is the Golden Star possible?</h3>
+      <p>In 97,422 of the 165,888 rolls, which is 58.7 per cent. The Golden Star button tells you whether the roll in front of you is one of them.</p>
+      <h3>Can I play with friends?</h3>
+      <p>Yes. Create a lobby, share the five-letter code, and up to five players get the same roll at the same moment. The fastest finisher wins the round and the Golden Star counts double.</p>
+      <h3>Does it work on a phone?</h3>
+      <p>Yes. The board takes the full width, you drag pieces with a finger and tap a selected piece to rotate it. Nothing to install.</p>
+      <h3>Do I need an account?</h3>
+      <p>No. Guests can play everything, and their times stay in the browser. An account keeps your records and game history across devices.</p>
+    </div>
+  </section>
+
+  <footer class="site-foot">
+    <div class="about-inner foot-inner">
+      <p>
+        <a href="#top">Back to the game</a> ·
+        <a href="https://github.com/alishan-alv/genius-star" target="_blank" rel="noopener">Source on GitHub</a> ·
+        <a class="support-link" href="https://buymeacoffee.com/al1shan" target="_blank" rel="noopener noreferrer">Buy me a coffee</a>
+      </p>
+      <p class="tiny">
+        The Genius Star is a trademark of The Happy Puzzle Company. This is an unofficial fan-made web version,
+        not affiliated with or endorsed by them. Built by <a href="https://github.com/alishan-alv" target="_blank" rel="noopener">alishan-alv</a>.
+      </p>
+    </div>
+  </footer>
 
   <svg id="drag-layer" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
   <div id="support-root"></div>
