@@ -157,4 +157,5 @@ not affiliated with them. The board numbering, dice faces and piece shapes were 
 the printed game and against independent solvers by
 [John Rudge](https://github.com/johnrudge/genius_star), [Oleksandr Manzyuk](https://github.com/manzyuk/genius-star)
 and [Benjamin Turner](https://github.com/turnerbenjamin/genius-star-solver).
-Font: DM Sans (SIL OFL). Code: MIT.
+The DM Sans font in `fonts/` is used under the SIL Open Font License 1.1. The code is MIT — see
+[LICENSE](LICENSE).
