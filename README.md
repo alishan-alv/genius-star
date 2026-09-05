@@ -130,6 +130,7 @@ js/backend.js              Supabase adapter + local mode
 js/game.js                 board, drag & drop, timer, records, shared widgets
 js/account.js              sign in / sign up, nickname, profile & history
 js/lobby.js                lobbies: presence, rounds, scoreboard
+js/support.js              the occasional, dismissible "buy me a coffee" card
 api/config.js              Vercel function exposing the public config
 supabase/schema.sql        tables, RLS policies, sign-up trigger
 tools/                     local server, exhaustive verifier, README hero renderer
