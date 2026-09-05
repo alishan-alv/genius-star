@@ -9,7 +9,7 @@ for (const f of ['geometry', 'pieces', 'dice', 'solver']) require(path.join(__di
 const GS = global.GS;
 const G = GS.geom, S = GS.solver;
 
-const roll = [4, 10, 15, 18, 28, 33, 37];
+const roll = GS.dice.normalizeRoll([4, 10, 15, 18, 28, 33, 37]);   // numbers in die order
 const blocked = roll.map(n => n - 1);
 const sol = S.solve({ blocked, star: true });
 if (!sol) throw new Error('expected a Golden Star solution for the hero roll');

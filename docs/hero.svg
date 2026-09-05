@@ -92,18 +92,18 @@
 <text x="206.0" y="373.4" fill="#9d9d9d" font-size="12" font-weight="700" text-anchor="middle" dominant-baseline="middle">46</text>
 <text x="236.0" y="356.1" fill="#9d9d9d" font-size="12" font-weight="700" text-anchor="middle" dominant-baseline="middle">47</text>
 <text x="206.0" y="408.1" fill="#9d9d9d" font-size="12" font-weight="700" text-anchor="middle" dominant-baseline="middle">48</text>
+<polygon points="330.20,132.35 381.80,132.35 356.00,177.03" fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="356.00,136.24 358.70,143.52 366.46,143.84 360.37,148.67 362.47,156.14 356.00,151.84 349.53,156.14 351.63,148.67 345.54,143.84 353.30,143.52" fill="#000"/>
 <polygon points="236.00,82.81 261.80,127.50 210.20,127.50" fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round"/>
 <polygon points="236.00,101.60 238.70,108.88 246.46,109.20 240.37,114.02 242.47,121.50 236.00,117.20 229.53,121.50 231.63,114.02 225.54,109.20 233.30,108.88" fill="#000"/>
 <polygon points="206.00,134.77 231.80,179.46 180.20,179.46" fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round"/>
 <polygon points="206.00,153.56 208.70,160.84 216.46,161.16 210.37,165.99 212.47,173.46 206.00,169.16 199.53,173.46 201.63,165.99 195.54,161.16 203.30,160.84" fill="#000"/>
-<polygon points="330.20,132.35 381.80,132.35 356.00,177.03" fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round"/>
-<polygon points="356.00,136.24 358.70,143.52 366.46,143.84 360.37,148.67 362.47,156.14 356.00,151.84 349.53,156.14 351.63,148.67 345.54,143.84 353.30,143.52" fill="#000"/>
+<polygon points="326.00,238.70 351.80,283.38 300.20,283.38" fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="326.00,257.49 328.70,264.77 336.46,265.09 330.37,269.91 332.47,277.39 326.00,273.09 319.53,277.39 321.63,269.91 315.54,265.09 323.30,264.77" fill="#000"/>
 <polygon points="120.20,184.31 171.80,184.31 146.00,229.00" fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round"/>
 <polygon points="146.00,188.21 148.70,195.48 156.46,195.81 150.37,200.63 152.47,208.10 146.00,203.81 139.53,208.10 141.63,200.63 135.54,195.81 143.30,195.48" fill="#000"/>
 <polygon points="150.20,236.27 201.80,236.27 176.00,280.96" fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round"/>
 <polygon points="176.00,240.17 178.70,247.45 186.46,247.77 180.37,252.59 182.47,260.07 176.00,255.77 169.53,260.07 171.63,252.59 165.54,247.77 173.30,247.45" fill="#000"/>
-<polygon points="326.00,238.70 351.80,283.38 300.20,283.38" fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round"/>
-<polygon points="326.00,257.49 328.70,264.77 336.46,265.09 330.37,269.91 332.47,277.39 326.00,273.09 319.53,277.39 321.63,269.91 315.54,265.09 323.30,264.77" fill="#000"/>
 <polygon points="120.20,288.23 171.80,288.23 146.00,332.92" fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round"/>
 <polygon points="146.00,292.13 148.70,299.41 156.46,299.73 150.37,304.55 152.47,312.03 146.00,307.73 139.53,312.03 141.63,304.55 135.54,299.73 143.30,299.41" fill="#000"/>
 <clipPath id="c1"><path d="M206.00 26.00L236.00 77.96L206.00 129.92L176.00 181.88L116.00 181.88L146.00 129.92L176.00 77.96Z"/></clipPath>
@@ -145,29 +145,29 @@
 </g>
 <rect x="45" y="520.6921938165306" width="44" height="44" rx="5" fill="#000"/>
 <rect x="42" y="517.6921938165306" width="44" height="44" rx="5" fill="#fff" stroke="#000" stroke-width="2"/>
-<text x="64" y="540.6921938165306" font-size="18" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#000">4</text>
+<text x="64" y="540.6921938165306" font-size="18" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#000">15</text>
 <text x="81" y="557.6921938165306" font-size="8" font-weight="800" text-anchor="end" fill="#666">d6</text>
 <polygon points="114.20,520.69 131.80,520.69 145.00,533.89 145.00,551.49 131.80,564.69 114.20,564.69 101.00,551.49 101.00,533.89" fill="#000"/>
 <polygon points="111.20,517.69 128.80,517.69 142.00,530.89 142.00,548.49 128.80,561.69 111.20,561.69 98.00,548.49 98.00,530.89" fill="#000"/>
 <polygon points="112.00,519.69 128.00,519.69 140.00,531.69 140.00,547.69 128.00,559.69 112.00,559.69 100.00,547.69 100.00,531.69" fill="#fff"/>
-<text x="120" y="540.6921938165306" font-size="18" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#000">10</text>
+<text x="120" y="540.6921938165306" font-size="18" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#000">4</text>
 <text x="137" y="557.6921938165306" font-size="8" font-weight="800" text-anchor="end" fill="#666">d8</text>
 <rect x="157" y="520.6921938165306" width="44" height="44" rx="5" fill="#000"/>
 <rect x="154" y="517.6921938165306" width="44" height="44" rx="5" fill="#fff" stroke="#000" stroke-width="2"/>
-<text x="176" y="540.6921938165306" font-size="18" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#000">15</text>
+<text x="176" y="540.6921938165306" font-size="18" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#000">10</text>
 <text x="193" y="557.6921938165306" font-size="8" font-weight="800" text-anchor="end" fill="#666">d6</text>
 <polygon points="226.20,520.69 243.80,520.69 257.00,533.89 257.00,551.49 243.80,564.69 226.20,564.69 213.00,551.49 213.00,533.89" fill="#000"/>
 <polygon points="223.20,517.69 240.80,517.69 254.00,530.89 254.00,548.49 240.80,561.69 223.20,561.69 210.00,548.49 210.00,530.89" fill="#000"/>
 <polygon points="224.00,519.69 240.00,519.69 252.00,531.69 252.00,547.69 240.00,559.69 224.00,559.69 212.00,547.69 212.00,531.69" fill="#fff"/>
-<text x="232" y="540.6921938165306" font-size="18" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#000">18</text>
+<text x="232" y="540.6921938165306" font-size="18" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#000">33</text>
 <text x="249" y="557.6921938165306" font-size="8" font-weight="800" text-anchor="end" fill="#666">d8</text>
 <rect x="269" y="520.6921938165306" width="44" height="44" rx="5" fill="#000"/>
 <rect x="266" y="517.6921938165306" width="44" height="44" rx="5" fill="#fff" stroke="#000" stroke-width="2"/>
-<text x="288" y="540.6921938165306" font-size="18" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#000">28</text>
+<text x="288" y="540.6921938165306" font-size="18" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#000">18</text>
 <text x="305" y="557.6921938165306" font-size="8" font-weight="800" text-anchor="end" fill="#666">d6</text>
 <rect x="325" y="520.6921938165306" width="44" height="44" rx="5" fill="#000"/>
 <rect x="322" y="517.6921938165306" width="44" height="44" rx="5" fill="#fff" stroke="#000" stroke-width="2"/>
-<text x="344" y="540.6921938165306" font-size="18" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#000">33</text>
+<text x="344" y="540.6921938165306" font-size="18" font-weight="900" text-anchor="middle" dominant-baseline="middle" fill="#000">28</text>
 <text x="361" y="557.6921938165306" font-size="8" font-weight="800" text-anchor="end" fill="#666">d6</text>
 <polygon points="394.20,520.69 411.80,520.69 425.00,533.89 425.00,551.49 411.80,564.69 394.20,564.69 381.00,551.49 381.00,533.89" fill="#000"/>
 <polygon points="391.20,517.69 408.80,517.69 422.00,530.89 422.00,548.49 408.80,561.69 391.20,561.69 378.00,548.49 378.00,530.89" fill="#000"/>
